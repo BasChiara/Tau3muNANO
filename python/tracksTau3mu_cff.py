@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.Tau3muNANO.common_cff import *
 
 Path2022=["HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1","HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"]
-Path=Path2022
+Path2017=["HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1","HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_Charge1"]
+Path=Path2017
 
 trackTrgSelector = cms.EDProducer("TrackTriggerSelector",
                                   beamSpot   = cms.InputTag("offlineBeamSpot"),

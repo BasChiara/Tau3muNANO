@@ -3,8 +3,8 @@ from PhysicsTools.Tau3muNANO.common_cff import *
 #from HLTpathsT3m_cff import Path_Tau3Mu2022 
 
 Path2022=["HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1","HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15","HLT_DoubleMu4_3_LowMass"]
-#Path2022=["HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1","HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"]
-Path=Path2022
+Path2017=["HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1","HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_Charge1"]
+Path=Path2017
 
 triMuonTrgSelector = cms.EDProducer("TriMuonTriggerSelector",
                                  muonCollection = cms.InputTag("slimmedMuons"), 

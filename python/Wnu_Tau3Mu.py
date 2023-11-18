@@ -5,7 +5,8 @@ from PhysicsTools.NanoAOD.met_cff import *
 ########## inputs preparation ################
 
 Path2022=["HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1","HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15","HLT_DoubleMu4_3_LowMass"]
-Path=Path2022
+Path2017=["HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1","HLT_Tau3Mu_Mu5_Mu1_TkMu1_IsoTau10_Charge1"]
+Path=Path2017
 
 # Tau -> 3mu
 muonTripletForTau3Mu = cms.EDProducer('TriMuonBuilder',

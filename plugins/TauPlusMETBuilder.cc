@@ -70,7 +70,7 @@ void TauPlusMETBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
     const pat::MET &PuppiMet = P_Met->front();
 
     pat::MET::METCorrectionLevel DeepMETcorr;
-    DeepMETcorr = pat::MET::RawDeepResolutionTune;
+    //DeepMETcorr = pat::MET::METCorrectionLevel::DeepResolutionTune;
     //edm::Handle<pat::METCollection> D_Met;
     //evt.getByToken(DeepMet_, D_Met);
     //const pat::MET &DeepMet = D_Met->front();
@@ -96,23 +96,23 @@ void TauPlusMETBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
         
         MetP4.SetPtEtaPhiM(met.pt(), 0.0, met.phi(), 0);
         PuppiMetP4.SetPtEtaPhiM(PuppiMet.pt(), 0.0, PuppiMet.phi(), 0);
-        DeepMetP4.SetPtEtaPhiM(met.corPt(DeepMETcorr), 0.0, met.corPhi(DeepMETcorr), 0);
+        //DeepMetP4.SetPtEtaPhiM(met.corPt(DeepMETcorr), 0.0, met.corPhi(DeepMETcorr), 0);
 
         WcandP4.SetPtEtaPhiM((MetP4 + tauCandP4).Perp(), 0.0, (MetP4 + tauCandP4).Phi(), W_MASS);
         WcandPuppiP4.SetPtEtaPhiM((PuppiMetP4 + tauCandP4).Perp(), 0.0, (PuppiMetP4 + tauCandP4).Phi(), W_MASS);
-        WcandDeepP4.SetPtEtaPhiM((DeepMetP4 + tauCandP4).Perp(), 0.0, (DeepMetP4 + tauCandP4).Phi(), W_MASS);
+        //WcandDeepP4.SetPtEtaPhiM((DeepMetP4 + tauCandP4).Perp(), 0.0, (DeepMetP4 + tauCandP4).Phi(), W_MASS);
         pat::CompositeCandidate TauPlusMET;
         TauPlusMET.setCharge(tau.charge());
         
         // missing longitudinal momentum
         std::pair<double,double> MET_missPz(longMETsolutions(MetP4,tauCandP4));
         std::pair<double,double> PuppiMET_missPz(longMETsolutions(PuppiMetP4,tauCandP4));
-        std::pair<double,double> DeepMET_missPz(longMETsolutions(DeepMetP4,tauCandP4));
+        //std::pair<double,double> DeepMET_missPz(longMETsolutions(DeepMetP4,tauCandP4));
 
         // Tau candidate transverse mass
         float Tau_mT = std::sqrt(2. * tauCandP4.Perp()* MetP4.Pt() * (1 - std::cos(tauCandP4.Phi()-MetP4.Phi())));
         float Tau_Puppi_mT = std::sqrt(2. * tauCandP4.Perp()* PuppiMetP4.Pt() * (1 - std::cos(tauCandP4.Phi()-PuppiMetP4.Phi())));
-        float Tau_Deep_mT = std::sqrt(2. * tauCandP4.Perp()* DeepMetP4.Pt() * (1 - std::cos(tauCandP4.Phi()-DeepMetP4.Phi())));
+        //float Tau_Deep_mT = std::sqrt(2. * tauCandP4.Perp()* DeepMetP4.Pt() * (1 - std::cos(tauCandP4.Phi()-DeepMetP4.Phi())));
 
 
         // save variables
@@ -128,20 +128,20 @@ void TauPlusMETBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
         TauPlusMET.addUserFloat("PuppiMETminPz", PuppiMET_missPz.first);
         TauPlusMET.addUserFloat("PuppiMETmaxPz", PuppiMET_missPz.second);
         // DeepMET correction
-        TauPlusMET.addUserFloat("DeepMET_pt", met.corPt(DeepMETcorr)),
-        TauPlusMET.addUserFloat("Tau_Deep_mT", Tau_Deep_mT),
-        TauPlusMET.addUserFloat("DeepMETminPz", DeepMET_missPz.first);
-        TauPlusMET.addUserFloat("DeepMETmaxPz", DeepMET_missPz.second);
+        TauPlusMET.addUserFloat("DeepMET_pt", 0.0);//met.corPt(DeepMETcorr)),
+        TauPlusMET.addUserFloat("Tau_Deep_mT", 0.0);//Tau_Deep_mT),
+        TauPlusMET.addUserFloat("DeepMETminPz",0.0);// DeepMET_missPz.first);
+        TauPlusMET.addUserFloat("DeepMETmaxPz",0.0);// DeepMET_missPz.second);
         // Tau + MET ~ W candidate
         TauPlusMET.addUserFloat("pt", WcandP4.Pt());
         TauPlusMET.addUserFloat("Puppi_pt", WcandPuppiP4.Pt());
-        TauPlusMET.addUserFloat("Deep_pt", WcandDeepP4.Pt());
+        TauPlusMET.addUserFloat("Deep_pt", 0.0);//WcandDeepP4.Pt());
         TauPlusMET.addUserFloat("eta", WcandP4.Eta());
         TauPlusMET.addUserFloat("Puppi_eta", WcandPuppiP4.Eta());
-        TauPlusMET.addUserFloat("Deep_eta", WcandDeepP4.Eta());
+        TauPlusMET.addUserFloat("Deep_eta", 0.0);//WcandDeepP4.Eta());
         TauPlusMET.addUserFloat("phi", WcandP4.Phi());
         TauPlusMET.addUserFloat("Puppi_phi", WcandDeepP4.Phi());
-        TauPlusMET.addUserFloat("Deep_phi", WcandDeepP4.Phi());
+        TauPlusMET.addUserFloat("Deep_phi", 0.0);//WcandDeepP4.Phi());
         TauPlusMET.addUserFloat("mass", WcandP4.M());
 
         // push in the event
