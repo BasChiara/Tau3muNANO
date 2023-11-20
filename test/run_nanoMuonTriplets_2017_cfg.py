@@ -59,7 +59,8 @@ outputFileNANO = cms.untracked.string('_'.join(['tau3muNANO', extension[options.
 outputFileFEVT = cms.untracked.string('_'.join(['xFullEvt', extension[options.isMC], options.tag])+'.root')
 if not options.inputFiles :
     if options.isMC :
-        options.inputFiles = ['/store/mc/RunIISummer19UL17MiniAOD/W_ToTau_ToMuMuMu_TuneCP5_13TeV-pythia8/MINIAODSIM/106X_mc2017_realistic_v6-v2/100000/25E0419E-41D7-C74E-BCEE-D7790DD66C3B.root']
+        options.inputFiles = ['/store/mc/RunIISummer19UL17MiniAOD/W_ToTau_ToMuMuMu_TuneCP5_13TeV-pythia8/MINIAODSIM/106X_mc2017_realistic_v6-v2/100000/C2BA6BE7-AD65-6F4C-B0C2-13E440B118AA.root']
+#'/store/mc/RunIISummer19UL17MiniAOD/W_ToTau_ToMuMuMu_TuneCP5_13TeV-pythia8/MINIAODSIM/106X_mc2017_realistic_v6-v2/100000/25E0419E-41D7-C74E-BCEE-D7790DD66C3B.root']
     else :
         options.inputFiles = []
 annotation = '%s nevts:%d' % (outputFileNANO, options.maxEvents)
