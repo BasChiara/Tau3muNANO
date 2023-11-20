@@ -1,0 +1,12 @@
+common:
+  mc:
+    splitting: 1
+    globaltag: 106X_mc2017_realistic_v10 
+
+samples:
+  #
+  #  MC
+  #  
+  WnuTau3Mu_2017:
+    dataset: /W_ToTau_ToMuMuMu_TuneCP5_13TeV-pythia8/RunIISummer19UL17MiniAOD-106X_mc2017_realistic_v6-v2/MINIAODSIM 
+    isMC: True  

@@ -11,7 +11,7 @@ config = config()
 config.section_('General')
 config.General.transferOutputs = True
 config.General.transferLogs = True
-config.General.workArea = 'Tau3MuNano2022_%s' % production_tag
+config.General.workArea = 'Tau3MuNano2017_retry_%s' % production_tag
 
 config.section_('Data')
 config.Data.publication = False
@@ -23,7 +23,7 @@ config.Data.inputDBS = 'global'
 
 config.section_('JobType')
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = '../test/run_nanoMuonTriplets_2022_cfg.py'
+config.JobType.psetName = '../test/run_nanoMuonTriplets_2017_cfg.py'
 config.JobType.allowUndistributedCMSSW = True
 
 config.section_('User')
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
   from CRABAPI.RawCommand import crabCommand
   from CRABClient.ClientExceptions import ClientException
-  #from httplib import HTTPException
+  from httplib import HTTPException
   from http.client import HTTPException
   from multiprocessing import Process
 
@@ -52,18 +52,18 @@ if __name__ == '__main__':
 
 
   parser = ArgumentParser()
-  parser.add_argument('-y', '--yaml', default = 'MCsamples_2022.yml', help = 'File with dataset descriptions')
+  parser.add_argument('-y', '--yaml', default = 'MCsamples_2017.yml', help = 'File with dataset descriptions')
   parser.add_argument('-f', '--filter', default='*', help = 'filter samples, POSIX regular expressions allowed')
   args = parser.parse_args()
 
   with open(args.yaml) as f:
-    #doc = yaml.load(f) # Parse YAML file
-    doc = yaml.load(f,Loader=yaml.FullLoader) # Parse YAML file
+    doc = yaml.load(f) # Parse YAML file
+    #doc = yaml.load(f,Loader=yaml.FullLoader) # Parse YAML file
     common = doc['common'] if 'common' in doc else {'data' : {}, 'mc' : {}}
     
     # loop over samples
-    for sample, info in doc['samples'].items():
-    #for sample, info in doc['samples'].iteritems():
+    #for sample, info in doc['samples'].items():
+    for sample, info in doc['samples'].iteritems():
       # Input DBS
       input_dbs = info['dbs'] if 'dbs' in info else None
       # Given we have repeated datasets check for different parts
