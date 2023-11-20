@@ -71,48 +71,50 @@ class CandMCMatchTableProducerT3m : public edm::global::EDProducer<> {
 	      iEvent.getByToken(candMapVisTau_, mapVisTau);
 	    }
 
-            std::vector<int> key(ncand, -1), flav(ncand, 0);
-            for (unsigned int i = 0; i < ncand; ++i) {
-                reco::GenParticleRef match = (*map)[cands->ptrAt(i)];
-		reco::GenParticleRef matchVisTau;
-		if ( type_ == MTau ) {
-		  matchVisTau = (*mapVisTau)[cands->ptrAt(i)];
-		}
-                if      ( match.isNonnull()       ) key[i] = match.key();
-		else if ( matchVisTau.isNonnull() ) key[i] = matchVisTau.key();
-		else continue;
-                switch(type_) {
-                    case MMuon:		        
-                        if (match->isPromptFinalState()) flav[i] = 1; // prompt
-                        else flav[i] = getParentHadronFlag(match); // pdgId of mother
-                        break;
-                    case MElectron:
-                        if (match->isPromptFinalState()) flav[i] = (match->pdgId() == 22 ? 22 : 1); // prompt electron or photon
-                        else flav[i] = getParentHadronFlag(match); // pdgId of mother
-                        break;
-                    case MPhoton:
-                        if (match->isPromptFinalState()) flav[i] = (match->pdgId() == 22 ? 1 : 13); // prompt electron or photon
-                        break;
-                    case MTau:
-		        if      ( match.isNonnull() && match->statusFlags().isPrompt()                  && abs(match->pdgId()) == 11 ) flav[i] = 1;
-                        else if ( match.isNonnull() && match->statusFlags().isPrompt()                  && abs(match->pdgId()) == 13 ) flav[i] = 2;
-			else if ( match.isNonnull() && match->isDirectPromptTauDecayProductFinalState() && abs(match->pdgId()) == 11 ) flav[i] = 3;
-			else if ( match.isNonnull() && match->isDirectPromptTauDecayProductFinalState() && abs(match->pdgId()) == 13 ) flav[i] = 4;
-			else if ( matchVisTau.isNonnull()                                                                            ) flav[i] = 5;
-                        break;
-		    case MTrack:
-		        if (match->isPromptFinalState()) flav[i] = 1; //prompt
-			else flav[i] = getParentHadronFlag(match); // pdgId of mother
-			break;
-                    default:
-                        flav[i] = match->statusFlags().fromHardProcess();
-                };
-            }    
-            
-            tab->addColumn<int>(branchName_+"Idx",  key, "Index into genParticle list for "+doc_);
-	    tab->addColumn<int>(branchName_+"Flav", flav, "Flavour of genParticle for "+doc_+": "+flavDoc_);
+       std::vector<int> key(ncand, -1), flav(ncand, 0);
+       for (unsigned int i = 0; i < ncand; ++i) {
+          reco::GenParticleRef match = (*map)[cands->ptrAt(i)];
+          reco::GenParticleRef matchVisTau;
+          if ( type_ == MTau ) {
+             matchVisTau = (*mapVisTau)[cands->ptrAt(i)];
+          }
+          if      ( match.isNonnull()       ) key[i] = match.key();
+          else if ( matchVisTau.isNonnull() ) key[i] = matchVisTau.key();
+          else continue;
+          switch(type_) {
+             case MMuon:		        
+                if (match->isPromptFinalState()) flav[i] = 1; // prompt
+                else flav[i] = getParentHadronFlag(match); // pdgId of mother
+                break;
+             case MElectron:
+                if (match->isPromptFinalState()) flav[i] = (match->pdgId() == 22 ? 22 : 1); // prompt electron or photon
+                else flav[i] = getParentHadronFlag(match); // pdgId of mother
+                break;
+             case MPhoton:
+                if (match->isPromptFinalState()) flav[i] = (match->pdgId() == 22 ? 1 : 13); // prompt electron or photon
+                break;
+             case MTau:
+                if      ( match.isNonnull() && match->statusFlags().isPrompt()                  && abs(match->pdgId()) == 11 ) flav[i] = 1;
+                else if ( match.isNonnull() && match->statusFlags().isPrompt()                  && abs(match->pdgId()) == 13 ) flav[i] = 2;
+                else if ( match.isNonnull() && match->isDirectPromptTauDecayProductFinalState() && abs(match->pdgId()) == 11 ) flav[i] = 3;
+                else if ( match.isNonnull() && match->isDirectPromptTauDecayProductFinalState() && abs(match->pdgId()) == 13 ) flav[i] = 4;
+                else if ( matchVisTau.isNonnull()                                                                            ) flav[i] = 5;
+                break;
+             case MTrack:
+                if (match->isPromptFinalState()) flav[i] = 1; //prompt
+                else flav[i] = getParentHadronFlag(match); // pdgId of mother
+                break;
+             default:
+                flav[i] = match->statusFlags().fromHardProcess();
+          };
+       }    
 
-            iEvent.put(std::move(tab));
+       //tab->addColumn<int>(branchName_+"Idx",  key, "Index into genParticle list for "+doc_);
+       tab->addColumn<int>(branchName_+"Idx",  key, "Index into genParticle list for "+doc_, nanoaod::FlatTable::IntColumn);
+       //tab->addColumn<int>(branchName_+"Flav", flav, "Flavour of genParticle for "+doc_+": "+flavDoc_);
+       tab->addColumn<int>(branchName_+"Flav", flav, "Flavour of genParticle for "+doc_+": "+flavDoc_, nanoaod::FlatTable::IntColumn);
+
+       iEvent.put(std::move(tab));
         }
 
         static int getParentHadronFlag(const reco::GenParticleRef match) {
