@@ -17,10 +17,11 @@ class IsolationComputer{
         edm::Handle<PackedCandidatesCollection>& inputPFcandiadtes, 
         const double isoRadius,
         const double isoRadiusForHLT,
-	const double MaxDZForHLT,
+        const double MaxDZForHLT,
         const double dZpv,
         const double dBetaCone,
         const double dBetaValue = 0.2,
+        // from the hadronic tau reconstructio paper (Run2) --> https://cds.cern.ch/record/2196972/files/TAU-16-002-pas.pdf
         const double pT_treshold = 0.5
         );
     ~IsolationComputer(){}
