@@ -48,7 +48,7 @@ private:
     const edm::EDGetTokenT<pat::METCollection> PuppiMet_;
     //const edm::EDGetTokenT<pat::METCollection> DeepMet_;
 
-    bool debug = true;
+    bool debug = false;
 
     std::pair<double, double> longMETsolutions( TLorentzVector&,  TLorentzVector &) const;
 
@@ -82,7 +82,9 @@ void TauPlusMETBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
         // pick the Tau candidate
         TLorentzVector tauCandP4;
         if ( tau.hasUserFloat("fitted_pt")&&tau.hasUserFloat("fitted_eta")&&tau.hasUserFloat("fitted_phi")&&tau.hasUserFloat("fitted_mass")  ){
-            if (debug) std::cout << " tau has all the kimetics .. OK" << std::endl;
+            if (debug) {
+               std::cout << " tau has all the kimetics .. OK" << std::endl;
+            }
             tauCandP4.SetPtEtaPhiM( tau.userFloat("fitted_pt"),
                                     tau.userFloat("fitted_eta"),
                                     tau.userFloat("fitted_phi"),
@@ -103,6 +105,7 @@ void TauPlusMETBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
         //WcandDeepP4.SetPtEtaPhiM((DeepMetP4 + tauCandP4).Perp(), 0.0, (DeepMetP4 + tauCandP4).Phi(), W_MASS);
         pat::CompositeCandidate TauPlusMET;
         TauPlusMET.setCharge(tau.charge());
+        if(debug) std::cout << " WpT (rawMET)" << WcandP4.Pt() << std::endl; 
         
         // missing longitudinal momentum
         std::pair<double,double> MET_missPz(longMETsolutions(MetP4,tauCandP4));
@@ -135,13 +138,13 @@ void TauPlusMETBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
         // Tau + MET ~ W candidate
         TauPlusMET.addUserFloat("pt", WcandP4.Pt());
         TauPlusMET.addUserFloat("Puppi_pt", WcandPuppiP4.Pt());
-        TauPlusMET.addUserFloat("Deep_pt", 0.0);//WcandDeepP4.Pt());
+        TauPlusMET.addUserFloat("Deep_pt", WcandDeepP4.Pt());
         TauPlusMET.addUserFloat("eta", WcandP4.Eta());
         TauPlusMET.addUserFloat("Puppi_eta", WcandPuppiP4.Eta());
-        TauPlusMET.addUserFloat("Deep_eta", 0.0);//WcandDeepP4.Eta());
+        TauPlusMET.addUserFloat("Deep_eta", WcandDeepP4.Eta());
         TauPlusMET.addUserFloat("phi", WcandP4.Phi());
-        TauPlusMET.addUserFloat("Puppi_phi", WcandDeepP4.Phi());
-        TauPlusMET.addUserFloat("Deep_phi", 0.0);//WcandDeepP4.Phi());
+        TauPlusMET.addUserFloat("Puppi_phi", WcandPuppiP4.Phi());
+        TauPlusMET.addUserFloat("Deep_phi", WcandDeepP4.Phi());
         TauPlusMET.addUserFloat("mass", WcandP4.M());
 
         // push in the event
@@ -158,6 +161,10 @@ void TauPlusMETBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
 DEFINE_FWK_MODULE(TauPlusMETBuilder);
 
 std::pair<double, double> TauPlusMETBuilder::longMETsolutions(TLorentzVector& metP4, TLorentzVector & TriMuP4) const{
+    if(debug){
+       std::cout << " tau-cand: " << Form("E %.3f \t Px %.3f \t Py %.3f \t Pz %.3f \t M %.3f", TriMuP4.E(), TriMuP4.Px(), TriMuP4.Py(), TriMuP4.Pz(), TriMuP4.M() )<< std::endl; 
+       std::cout << " MET-cand: " << Form("E %.3f \t Px %.3f \t Py %.3f \t Pz %.3f \t M %.3f", metP4.E(), metP4.Px(), metP4.Py(), metP4.Pz(), metP4.M() )<< std::endl; 
+    }
 
     bool verbose = false;
     double min_missPz = -999 , max_missPz = -999;
@@ -172,6 +179,7 @@ std::pair<double, double> TauPlusMETBuilder::longMETsolutions(TLorentzVector& me
     delta = delta > 0 ? std::sqrt(delta) : 0;
     min_missPz = fabs((b - delta)/a) < fabs((b + delta)/a) ? (b - delta)/a : (b + delta)/a;
     max_missPz = fabs((b - delta)/a) > fabs((b + delta)/a) ? (b - delta)/a : (b + delta)/a;
+    if(debug) std::cout << Form(" [=] p_miss_pz = %.3f \t m_miss_pz = %.3f ", (b + delta)/a, (b - delta)/a) << std::endl;
     
     if(verbose){
        std::cout << " --- solve long missing energy ----" << std::endl;
