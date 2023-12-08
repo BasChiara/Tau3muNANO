@@ -11,7 +11,7 @@ git cms-init
 
 ## checkout 
 ```
-git clone git@github.com:BasChiara/Tau3muNANO.git ./PhysicsTools/Tau3muNANO
+git clone -b CMSSW_12_4_11 git@github.com:BasChiara/Tau3muNANO.git ./PhysicsTools/Tau3muNANO
 cd PhysicsTools/Tau3muNANO
 ```
 
