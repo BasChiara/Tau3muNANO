@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+#from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 from PhysicsTools.Tau3muNANO.common_cff import *
+from PhysicsTools.Tau3muNANO.HLTpathsT3m_cff import Path_Tau3Mu2022
 
 Path2022=["HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1","HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"]
-Path=Path2022
+Path=Path_Tau3Mu2022
 
 trackTrgSelector = cms.EDProducer("TrackTriggerSelector",
                                   beamSpot   = cms.InputTag("offlineBeamSpot"),
@@ -30,11 +32,18 @@ trackT3mTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
                                singleton = cms.bool(False),         
                                extension = cms.bool(False),         
                                variables = cms.PSet(PTVars, 
-                               nValidHits = Var("userInt('nValidHits')",float,doc="N. valid hits"), 
-                               dZpv = Var("userFloat('dZpv')",float,doc="long distance from PV"),
-                               err_dZpv = Var("userFloat('err_dZpv')",float,doc="long error from PV"),
-                               drForHLT = Var("userFloat('drForHLT')",float,doc="BS compatibility"),
-                                                )
+                                                    charge      = Var("userInt('charge')", float, doc="track charge"),
+                                                    nValidHits  = Var("userInt('nValidHits')",float,doc="N. valid hits"), 
+                                                    dZpv        = Var("userFloat('dZpv')",float,doc="long distance from PV"),
+                                                    err_dZpv    = Var("userFloat('err_dZpv')",float,doc="long error from PV"),
+                                                    drForHLT    = Var("userFloat('drForHLT')",float,doc="BS compatibility"),
+                                                    fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1 = uint("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1"),
+                                                    Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1_dr = ufloat("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1_dr"),
+                                                    fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15 = uint("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"),
+                                                    Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_dr = ufloat("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_dr"),
+                                                    fired_DoubleMu4_3_LowMass = uint("HLT_DoubleMu4_3_LowMass"), # DoubleMu* matching should be off
+                                                    DoubleMu4_3_LowMass_dr = ufloat("HLT_DoubleMu4_3_LowMass_dr"),
+                                                ),
 )
 
 trackT3mMCMatchForTable = cms.EDProducer("MCMatcher",   
@@ -51,8 +60,8 @@ trackT3mMCMatchForTable = cms.EDProducer("MCMatcher",
 
 trackT3mMCMatchEmbedded = cms.EDProducer(
     'CompositeCandidateMatchEmbedder',
-    src = trackT3mTable.src,
-    matching = cms.InputTag("tracksT3mMCMatchForTable")
+    src = cms.InputTag("trackTrgSelector:SelectedTracks"),
+    matching = cms.InputTag("trackT3mMCMatchForTable")
 )
 
 trackT3mMCTable = cms.EDProducer("CandMCMatchTableProducerT3m",

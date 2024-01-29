@@ -17,13 +17,13 @@ from PhysicsTools.Tau3muNANO.muonsTau3mu_cff import * # define new
 from PhysicsTools.Tau3muNANO.tracksTau3mu_cff import * # define new    
 
 ## W collections
-from PhysicsTools.Tau3muNANO.Wnu_Tau3Mu import * #define new
+from PhysicsTools.Tau3muNANO.DsPhiMuMuPi_cff import * #define new
 
 nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTau3MuTables + l1bits)
 
 vertexTable.svSrc = cms.InputTag("slimmedSecondaryVertices")
 
-nanoSequence = cms.Sequence(nanoMetadata + #nanoSequenceCommon + 
+nanoSequence = cms.Sequence(nanoMetadata + 
                             cms.Sequence(vertexTask) + 
                             cms.Sequence(vertexTablesTask) +
                             cms.Sequence(metTablesTask) +           
@@ -34,10 +34,6 @@ nanoSequence = cms.Sequence(nanoMetadata + #nanoSequenceCommon +
 
 nanoSequenceMC = cms.Sequence(particleLevelT3mSequence + genParticleT3mSequence + cms.Sequence(metMCTask) + 
                               cms.Sequence(globalTablesMCTask) + cms.Sequence(genWeightsTableTask) + genParticleT3mTables + lheInfoTable)
-
-#Tau3MuSequence = cms.Sequence(
-#    muonTripletForTau3Mu * DsPhiMuMuPiForTau3Mu * (CountDsCand+CountMuonTriplets)
-#)
 
 def nanoAOD_customizeMuonTriggerTau3Mu(process):
     process.nanoSequence = cms.Sequence( process.nanoSequence + muonT3mSequence + muonT3mTables)
@@ -51,10 +47,9 @@ def nanoAOD_customizeTriggerBitsTau3Mu(process):
     process.nanoSequence = cms.Sequence( process.nanoSequence + trgTables)
     return process
 
-def nanoAOD_customizeWnuTau3Mu(process):
-    process.nanoWnuTau3MuSequence = cms.Sequence( (Tau3MuSequence + Tau3MuTableSequence + TauPlusMetSequence + TauPlusMetTableSequence) * CountMuonTriplets) 
+def nanoAOD_customizeDsPhiMuMuPi(process):
+    process.nanoDsPhiMuMuPi = cms.Sequence( (DsPhiMuMuPiSequence + DsPhiMuMuPiTableSequence + DsPlusMetSequence + DsPlusMetTableSequence)*CountDsCand)
     return process
-
 
 
 from FWCore.ParameterSet.MassReplace import massSearchReplaceAnyInputTag

@@ -1,5 +1,5 @@
 import CRABClient
-from CRABClient.UserUtilities import config, ClientException, getUsernameFromCRIC
+from CRABClient.UserUtilities import config, ClientException#, getUsernameFromCRIC
 import yaml
 import datetime
 from fnmatch import fnmatch
@@ -29,10 +29,10 @@ config.JobType.allowUndistributedCMSSW = True
 config.section_('User')
 config.section_('Site')
 # chiara: un-comment to store at cern
-config.Site.storageSite = 'T2_CH_CERN'
+#config.Site.storageSite = 'T2_CH_CERN'
 #
 # chiara: un-comment to store at Rome
-#config.Site.storageSite = 'T2_IT_Rome'
+config.Site.storageSite = 'T2_IT_Rome'
 
 if __name__ == '__main__':
 

@@ -1,0 +1,107 @@
+common:
+  data:
+    lumimask : https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions22/Cert_Collisions2022_355100_362760_Golden.json
+    splitting: 20
+    globaltag: 124X_dataRun3_PromptAnalysis_v1 
+
+samples:
+  #
+  #  DATA
+  #  
+  ##  ERA C
+  data_Run2022Cv1_0:    
+    dataset: /ParkingDoubleMuonLowMass0/Run2022C-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Cv1_1:    
+    dataset: /ParkingDoubleMuonLowMass1/Run2022C-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Cv1_2:    
+    dataset: /ParkingDoubleMuonLowMass2/Run2022C-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Cv1_3:    
+    dataset: /ParkingDoubleMuonLowMass3/Run2022C-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Cv1_4:    
+    dataset: /ParkingDoubleMuonLowMass4/Run2022C-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Cv1_5:    
+    dataset: /ParkingDoubleMuonLowMass5/Run2022C-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Cv1_6:    
+    dataset: /ParkingDoubleMuonLowMass6/Run2022C-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Cv1_7:    
+    dataset: /ParkingDoubleMuonLowMass7/Run2022C-PromptReco-v1/MINIAOD
+    isMC: False
+  ##  ERA D (v1)
+  data_Run2022Dv1_0:    
+    dataset: /ParkingDoubleMuonLowMass0/Run2022D-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Dv1_1:    
+    dataset: /ParkingDoubleMuonLowMass1/Run2022D-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Dv1_2:    
+    dataset: /ParkingDoubleMuonLowMass2/Run2022D-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Dv1_3:    
+    dataset: /ParkingDoubleMuonLowMass3/Run2022D-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Dv1_4:    
+    dataset: /ParkingDoubleMuonLowMass4/Run2022D-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Dv1_5:    
+    dataset: /ParkingDoubleMuonLowMass5/Run2022D-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Dv1_6:    
+    dataset: /ParkingDoubleMuonLowMass6/Run2022D-PromptReco-v1/MINIAOD
+    isMC: False
+  #
+  data_Run2022Dv1_7:    
+    dataset: /ParkingDoubleMuonLowMass7/Run2022D-PromptReco-v1/MINIAOD
+    isMC: False
+  ##  ERA D (v2) 
+  data_Run2022Dv2_0:    
+    dataset: /ParkingDoubleMuonLowMass0/Run2022D-PromptReco-v2/MINIAOD
+    isMC: False
+  #
+  data_Run2022Dv2_1:    
+    dataset: /ParkingDoubleMuonLowMass1/Run2022D-PromptReco-v2/MINIAOD
+    isMC: False
+  #  
+  data_Run2022Dv2_2:    
+    dataset: /ParkingDoubleMuonLowMass2/Run2022D-PromptReco-v2/MINIAOD
+    isMC: False
+  #  
+  data_Run2022Dv2_3:    
+    dataset: /ParkingDoubleMuonLowMass3/Run2022D-PromptReco-v2/MINIAOD
+    isMC: False
+  #  
+  data_Run2022Dv2_4:    
+    dataset: /ParkingDoubleMuonLowMass4/Run2022D-PromptReco-v2/MINIAOD
+    isMC: False
+  #  
+  data_Run2022Dv2_5:    
+    dataset: /ParkingDoubleMuonLowMass5/Run2022D-PromptReco-v2/MINIAOD
+    isMC: False
+  #  
+  data_Run2022Dv2_6:    
+    dataset: /ParkingDoubleMuonLowMass6/Run2022D-PromptReco-v2/MINIAOD
+    isMC: False
+  #  
+  data_Run2022Dv2_7:    
+    dataset: /ParkingDoubleMuonLowMass7/Run2022D-PromptReco-v2/MINIAOD
+    isMC: False
+  ##

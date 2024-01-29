@@ -5,13 +5,16 @@ from PhysicsTools.Tau3muNANO.HLTpathsT3m_cff import Path_Tau3Mu2022
 
 ########## inputs preparation ################
 
-Path2022=["HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1","HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15","HLT_DoubleMu4_3_LowMass"]
-Path=Path_Tau3Mu2022
+Path2022=["HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1","HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"]#,"HLT_DoubleMu4_3_LowMass"]
+Path= Path_Tau3Mu2022
 
-# Tau -> 3mu
-muonTripletForTau3Mu = cms.EDProducer('TriMuonBuilder',
-    src                 = cms.InputTag('triMuonTrgSelector', 'SelectedMuons'),
-    transientTracksSrc  = cms.InputTag('triMuonTrgSelector', 'SelectedTransientMuons'),
+# Ds+ -> Phi(MuMu) Pi+
+DsPhiMuMuPiForTau3Mu = cms.EDProducer('DsPhiMuMuPiBuilder',
+    # sources muons & tracks
+    muons               = cms.InputTag('triMuonTrgSelector:SelectedMuons'),
+    muonsTransientTracks= cms.InputTag('triMuonTrgSelector:SelectedTransientMuons'),
+    tracks              = cms.InputTag('trackTrgSelector:SelectedTracks'),
+    tracksTransientTracks= cms.InputTag('trackTrgSelector:SelectedTransientTracks'),
     packedCandidatesSrc = cms.InputTag('packedPFCandidates'),
     beamSpot            = cms.InputTag("offlineBeamSpot"),
     vertices            = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -20,9 +23,11 @@ muonTripletForTau3Mu = cms.EDProducer('TriMuonBuilder',
     # selection definition
     lep1Selection   = cms.string('isMediumMuon && ((abs(eta) <= 1.2 && pt > 3.5) || (abs(eta) > 1.2 && abs(eta) < 2.4 && pt > 2.0))'),
     lep2Selection   = cms.string('isMediumMuon && ((abs(eta) <= 1.2 && pt > 3.5) || (abs(eta) > 1.2 && abs(eta) < 2.4 && pt > 2.0))'),
-    lep3Selection   = cms.string('isMediumMuon && ((abs(eta) <= 1.2 && pt > 3.5) || (abs(eta) > 1.2 && abs(eta) < 2.4 && pt > 2.0))'),
-    preVtxSelection = cms.string('mass() < 3 && abs(charge()) == 1'), # selection for tau candidates pre-fit
+    trackSelection  = cms.string('abs(eta) <= 3.0 && pt > 1.0'), 
+    preVtxSelection = cms.string('mass() > 1.0 && mass() < 3.5 && abs(charge()) == 1'), # selection for Ds candidates pre-fit
     postVtxSelection= cms.string('userInt("vtx_isValid")'),
+    minMuMu_mass    = cms.double(0.920), #GeV
+    MaxMuMu_mass    = cms.double(1.120), #GeV
     # trigger
     HLTPaths          = cms.vstring(Path),                                                                        
     drForTriggerMatch = cms.double(0.1), 
@@ -47,8 +52,8 @@ METfilters =[
         'Flag_ecalBadCalibFilter',
     ]
 
-METforWnuTau3Mu = cms.EDProducer('TauPlusMETBuilder',
-    src = cms.InputTag('muonTripletForTau3Mu', 'SelectedTriMuons'),
+METforDsPhiPi = cms.EDProducer('TauPlusMETBuilder',
+    src = cms.InputTag('DsPhiMuMuPiForTau3Mu', 'SelectedDs'),
     # input MET
     met = cms.InputTag('slimmedMETs'),
     PuppiMet = cms.InputTag('slimmedMETsPuppi'),
@@ -61,21 +66,33 @@ METforWnuTau3Mu = cms.EDProducer('TauPlusMETBuilder',
 
 ################################### Tables #####################################
 
-Tau3MuTable = cms.EDProducer('SimpleCompositeCandidateFlatTableProducer',
-    src = cms.InputTag('muonTripletForTau3Mu', 'SelectedTriMuons'),
+DsPhiMuMuPiTable = cms.EDProducer('SimpleCompositeCandidateFlatTableProducer',
+    src = cms.InputTag('DsPhiMuMuPiForTau3Mu', 'SelectedDs'),
     cut = cms.string(""),
-    name = cms.string("TauTo3Mu"),
-    doc = cms.string("Tau Variables"),
+    name = cms.string("DsPhiPi"),
+    doc = cms.string("Ds+/- Variables"),
     singleton=cms.bool(False),
     extension=cms.bool(False),
     variables=cms.PSet(
         mu1_idx = uint('l1_idx'),
         mu2_idx = uint('l2_idx'),
-        mu3_idx = uint('l3_idx'),
+        trk_idx = uint('trk_idx'),
         charge  = uint('charge'),
         mu1_charge = uint("mu1_charge"),
         mu2_charge = uint("mu2_charge"),
-        mu3_charge = uint("mu3_charge"),
+        trk_charge = uint("trk_charge"),
+        
+        MuMu_fitted_vtxX = ufloat("MuMu_fitted_vtxX"),
+        MuMu_fitted_vtxY = ufloat("MuMu_fitted_vtxY"),
+        MuMu_fitted_vtxZ = ufloat("MuMu_fitted_vtxZ"),
+        MuMu_fitted_vtxEx = ufloat("MuMu_fitted_vtxEx"),
+        MuMu_fitted_vtxEy = ufloat("MuMu_fitted_vtxEy"),
+        MuMu_fitted_vtxEz = ufloat("MuMu_fitted_vtxEz"),
+        MuMu_fitted_pt  = ufloat("MuMu_fitted_pt" ), 
+        MuMu_fitted_eta = ufloat("MuMu_fitted_eta"),
+        MuMu_fitted_phi = ufloat("MuMu_fitted_phi"),
+        MuMu_fitted_mass = ufloat("MuMu_fitted_mass"),
+        MuMu_fitted_mass_err2 = ufloat("MuMu_fitted_mass_err2"),
 
         vtx_prob = ufloat("vtx_prob"),
         vtx_chi2 = ufloat("vtx_chi2"),
@@ -99,8 +116,8 @@ Tau3MuTable = cms.EDProducer('SimpleCompositeCandidateFlatTableProducer',
         PVrefit_y = ufloat('PVrefit_y'),
         PVrefit_z = ufloat('PVrefit_z'),
         
-        diMuVtxFit_bestProb = ufloat("diMuVtxFit_bestProb"),
-        diMuVtxFit_bestMass = ufloat("diMuVtxFit_bestMass"),
+        #diMuVtxFit_bestProb = ufloat("diMuVtxFit_bestProb"),
+        #diMuVtxFit_bestMass = ufloat("diMuVtxFit_bestMass"),
         diMuVtxFit_toVeto   = uint("diMuVtxFit_toVeto"),
 
         iso_ptChargedFromPV = ufloat("iso_ptChargedFromPV"),
@@ -116,11 +133,11 @@ Tau3MuTable = cms.EDProducer('SimpleCompositeCandidateFlatTableProducer',
         absIsolation_pT05 = ufloat("absIsolation_pT05"),
 
         dZmu12 = ufloat('dZmu12'),
-        mu12_fit_mass = ufloat('mu12_fit_mass'),
+        #mu12_fit_mass = ufloat('mu12_fit_mass'),
         dZmu13 = ufloat('dZmu13'),
-        mu13_fit_mass = ufloat('mu13_fit_mass'),
+        #mu13_fit_mass = ufloat('mu13_fit_mass'),
         dZmu23 = ufloat('dZmu23'),
-        mu23_fit_mass = ufloat('mu23_fit_mass'),
+        #mu23_fit_mass = ufloat('mu23_fit_mass'),
         Lxy_3muVtxBS = ufloat('Lxy_3muVtxBS'),
         errLxy_3muVtxBS = ufloat('errLxy_3muVtxBS'),
         sigLxy_3muVtxBS = ufloat('sigLxy_3muVtxBS'),
@@ -141,18 +158,18 @@ Tau3MuTable = cms.EDProducer('SimpleCompositeCandidateFlatTableProducer',
         mu2_phi = ufloat("mu2_phi"),
         mu2_dr = ufloat("mu2_drForHLT"),
         mu2_trackQuality = uint("mu2_trackQuality"),
-        mu3_pt = ufloat("mu3_pt"),
-        mu3_eta = ufloat("mu3_eta"),
-        mu3_phi = ufloat("mu3_phi"),
-        mu3_dr = ufloat("mu3_drForHLT"),
-        mu3_trackQuality = uint("mu3_trackQuality"),
+        trk_pt = ufloat("trk_pt"),
+        trk_eta = ufloat("trk_eta"),
+        trk_phi = ufloat("trk_phi"),
+        trk_dr = ufloat("trk_drForHLT"),
+        trk_trackQuality = uint("trk_trackQuality"),
 
         mu12_DCA   = ufloat("mu12_DCA"), 
-        mu12_vtxFitProb = ufloat("mu12_vtxFitProb"), 
+        #mu12_vtxFitProb = ufloat("mu12_vtxFitProb"), 
         mu23_DCA   = ufloat("mu23_DCA"), 
-        mu23_vtxFitProb = ufloat("mu23_vtxFitProb"), 
+        #mu23_vtxFitProb = ufloat("mu23_vtxFitProb"), 
         mu13_DCA   = ufloat("mu13_DCA"), 
-        mu13_vtxFitProb = ufloat("mu13_vtxFitProb"), 
+        #mu13_vtxFitProb = ufloat("mu13_vtxFitProb"), 
 
         mu1_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1 = uint("mu1_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1"),
         mu1_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15 = uint("mu1_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"),
@@ -163,16 +180,16 @@ Tau3MuTable = cms.EDProducer('SimpleCompositeCandidateFlatTableProducer',
         mu2_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15 = uint("mu2_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"),
         mu2_fired_DoubleMu4_3_LowMass = uint("mu2_fired_DoubleMu4_3_LowMass"),
 
-        mu3_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1 = uint("mu3_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1"),
-        mu3_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15 = uint("mu3_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"),
-        mu3_fired_DoubleMu4_3_LowMass = uint("mu3_fired_DoubleMu4_3_LowMass"),
+        trk_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1 = uint("trk_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1"),
+        trk_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15 = uint("trk_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"),
+        trk_fired_DoubleMu4_3_LowMass = uint("trk_fired_DoubleMu4_3_LowMass"),
     )
 )
 
-TauPlusMetTable = cms.EDProducer('SimpleCompositeCandidateFlatTableProducer',
-    src = cms.InputTag('METforWnuTau3Mu', 'builtWbosons'),
+DsPlusMetTable = cms.EDProducer('SimpleCompositeCandidateFlatTableProducer',
+    src = cms.InputTag('METforDsPhiPi', 'builtWbosons'),
     cut = cms.string(""),
-    name = cms.string("TauPlusMET"),
+    name = cms.string("DsPlusMET"),
     doc = cms.string("Tau+MET Variables"),
     singleton=cms.bool(False),
     extension=cms.bool(False),
@@ -224,22 +241,19 @@ TauPlusMetTable = cms.EDProducer('SimpleCompositeCandidateFlatTableProducer',
     )
 )
 
-CountMuonTriplets = cms.EDFilter("PATCandViewCountFilter",
+CountDsCand = cms.EDFilter("PATCandViewCountFilter",
     minNumber = cms.uint32(1),
     maxNumber = cms.uint32(999999),
-    src = cms.InputTag('muonTripletForTau3Mu', 'SelectedTriMuons'),
+    src = cms.InputTag('DsPhiMuMuPiForTau3Mu', 'SelectedDs'),
 )    
 
 ########################### Sequencies  ############################
 
-#Tau3MuSequence = cms.Sequence(
-#    (muonTripletForTau3Mu * CountMuonTriplets)
+#DsPhiMuMuPiSequence = cms.Sequence(
+#    (DsPhiMuMuPiForTau3Mu * CountDsCand)
 #)
-Tau3MuSequence = cms.Sequence(
-    muonTripletForTau3Mu
-)
+DsPhiMuMuPiSequence = cms.Sequence(DsPhiMuMuPiForTau3Mu)
+DsPhiMuMuPiTableSequence = cms.Sequence( DsPhiMuMuPiTable )
 
-Tau3MuTableSequence = cms.Sequence( Tau3MuTable )
-
-TauPlusMetSequence = cms.Sequence( METforWnuTau3Mu )
-TauPlusMetTableSequence = cms.Sequence( TauPlusMetTable )
+DsPlusMetSequence = cms.Sequence( METforDsPhiPi )
+DsPlusMetTableSequence = cms.Sequence( DsPlusMetTable )
