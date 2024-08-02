@@ -315,9 +315,11 @@ void TriMuonBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
         float ptChargedFromPV = isoComputer.pTcharged_iso(muon_triplet);
         float ptChargedFromPU = isoComputer.pTcharged_PU(muon_triplet);
         float ptPhotons = isoComputer.pTphoton(muon_triplet);
+        float ptNeutral = isoComputer.pTneutral(muon_triplet);
         float ptChargedForHLT = isoComputer.pTchargedforhlt_iso(muon_triplet,fitted_vtx->position().z());
 
         float TauAbsIsolation = ptChargedFromPV + std::max(0., ptPhotons - dBetaValue_*ptChargedFromPU);
+        float lepTauAbsIsolation = ptChargedFromPV + std::max(0., ptPhotons + ptNeutral - dBetaValue_*ptChargedFromPU);
          
         //  --- set pT threshold for isolation = 0.5 GeV
         iso_pT_threshold = 0.5;
@@ -326,16 +328,11 @@ void TriMuonBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
         float ptChargedFromPV_pT05 = isoComputer_pT05.pTcharged_iso(muon_triplet);
         float ptChargedFromPU_pT05 = isoComputer_pT05.pTcharged_PU(muon_triplet);
         float ptPhotons_pT05 = isoComputer_pT05.pTphoton(muon_triplet);
+        float ptNeutral_pT05 = isoComputer_pT05.pTneutral(muon_triplet);
         float ptChargedForHLT_pT05 = isoComputer_pT05.pTchargedforhlt_iso(muon_triplet,fitted_vtx->position().z());
 
         float TauAbsIsolation_pT05 = ptChargedFromPV_pT05 + std::max(0., ptPhotons_pT05 - dBetaValue_*ptChargedFromPU_pT05);
-
-        // class initiated with outer beta cone radius (NOT WORKING!!)
-        //heppy::IsolationComputer isoComputer = heppy::IsolationComputer(dBetaCone_);
-        //isoComputer.setPackedCandidates(pkdPFcand, -1, 0.2, 9999, true); // std::vector<pat::PackedCandidate>, fromPV_thresh, dz_thresh, dxy_thresh, also_leptons
-        //float ptChargedFromPV = isoComputer.chargedAbsIso(muon_triplet, isoRadius_, 0., 0.5);
-        //float ptChargedFromPU = isoComputer.puAbsIso(muon_triplet, dBetaCone_, 0., 0.5);
-        //float ptPhotons       = isoComputer.photonAbsIsoRaw(muon_triplet, dBetaCone_, 0., 0.5);
+        float lepTauAbsIsolation_pT05 = ptChargedFromPV_pT05 + std::max(0., ptPhotons_pT05 + ptNeutral_pT05 - dBetaValue_*ptChargedFromPU_pT05);
 
         // useful quantities for BDT
         // muons longitudinal distance
@@ -358,213 +355,217 @@ void TriMuonBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
         // Loop over trigger paths
         int ipath=-1;
       for (const std::string& path: HLTPaths_){
-	
-	if(debug) std::cout << "ipath = " << ipath << ", path = " << path << std::endl;
-	if(debug) std::cout << std::endl;
-	ipath++;
-      
-	// Here we loop over trigger objects
-	float minDr = 1000.;
-	if(debug) std::cout << std::endl;
-	if(debug) std::cout << "Now start loop over trigger objects" << std::endl;
-	for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
-	  
-	  if(debug) std::cout << "New object" << std::endl;
 
-	  // consider only objects which match the ref path    
-	  obj.unpackPathNames(trigNames);
-	  obj.unpackFilterLabels(evt, *triggerBits);
-	  std::vector<std::string> pathNamesAll  = obj.pathNames(false);
-	  bool isPathExist = false;
-	  
-	  for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
-	    string pathNameStart;
-	    pathNameStart = pathNamesAll[h].substr(0,pathNamesAll[h].find("_v")-0);
-	    if(debug) std::cout << "In loop over trigger object: this is ipath = " << pathNamesAll[h] << ", I need path = " << path << std::endl;	  
-	    if(pathNameStart==path) isPathExist = true;
-	  }
-	  if(!isPathExist) continue;
-	  
-	  if(debug) std::cout << "One of the two paths is found" << std::endl;	  
-	  
-	  int tauObjNumber = -1;
-	  for (unsigned hh = 0; hh < obj.filterLabels().size(); ++hh){	
+         if(debug) std::cout << "ipath = " << ipath << ", path = " << path << std::endl;
+         if(debug) std::cout << std::endl;
+         ipath++;
 
-	    if(debug) std::cout << "Event: Filter " << hh << " => " << obj.filterLabels()[hh] << ": pt =  " << obj.pt() << ", eta = " << obj.eta() << ", phi = " << obj.phi() << std::endl;
-	    if(debug) std::cout << "" << std::endl;	  
+         // Here we loop over trigger objects
+         float minDr = 1000.;
+         if(debug) std::cout << std::endl;
+         if(debug) std::cout << "Now start loop over trigger objects" << std::endl;
+         for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
 
-	    if (path=="HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1") {	  
-	      if(obj.filterLabels()[hh].find("hltTau3MuIsoFilterCharge1") != std::string::npos) {  
-		tauObjNumber = hh;
-	      }
-	    }
-	    if (path=="HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15") {	  
-	      if(obj.filterLabels()[hh].find("hltTau3MuIsoFilter") != std::string::npos) {  
-		tauObjNumber = hh;
-	      }
-	    }
-	  }
-	  if(debug && tauObjNumber>=0) std::cout << "Loop over filters done, my Tau filter found" << std::endl;
-	  if(debug && tauObjNumber<0)  std::cout << "Loop over filters done, my filters NOT found" << std::endl;
-	  
-	  // here HLT obj vs reco triplet candidate
-	  TVector3 objTV3;
-	  objTV3.SetPtEtaPhi( obj.pt(), obj.eta(), obj.phi() );
-	  Float_t deltaR = fabs(tauTV3.DeltaR(objTV3));
-	  
-	  // here HLT-tau candidates
-	  if (tauObjNumber>=0) {  
-	    if(debug) std::cout<< "DeltaR = " << deltaR << std::endl;
-	    if(debug) std::cout << "This is a tau HLT candidate" << endl;
-	    if(deltaR < drForTriggerMatch_){    
-	      frs[ipath]=1;  
-	      if (deltaR < minDr){
-		minDr = deltaR;
-	      }
-	      if(debug) std::cout << "This object is matched with tau: minDr = " << minDr << std::endl;
-	      if(debug) std::cout << "Offline: " << tauTV3.Pt() << " " << tauTV3.Eta() << " " << tauTV3.Phi() << std::endl;
-	      if(debug) std::cout << "HLT: "     << obj.pt()    << " " << obj.eta()    << " " << obj.phi()    << std::endl;
-	      if(debug) std::cout << tauObjNumber << std::endl;
-	    }
-	  }
-	  
-	} // Loop over trigger object
+            if(debug) std::cout << "New object" << std::endl;
 
-	// Minimum dR between reco triplet and all its matched HLT objects for this HLT path
-	temp_DR[ipath]=minDr;
+            // consider only objects which match the ref path    
+            obj.unpackPathNames(trigNames);
+            obj.unpackFilterLabels(evt, *triggerBits);
+            std::vector<std::string> pathNamesAll  = obj.pathNames(false);
+            bool isPathExist = false;
+	  
+            for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
+               string pathNameStart;
+               pathNameStart = pathNamesAll[h].substr(0,pathNamesAll[h].find("_v")-0);
+               if(debug) std::cout << "In loop over trigger object: this is ipath = " << pathNamesAll[h] << ", I need path = " << path << std::endl;	  
+               if(pathNameStart==path) isPathExist = true;
+            }
+            if(!isPathExist) continue;
+
+            if(debug) std::cout << "One of the two paths is found" << std::endl;	  
+
+            int tauObjNumber = -1;
+            for (unsigned hh = 0; hh < obj.filterLabels().size(); ++hh){	
+
+               if(debug) std::cout << "Event: Filter " << hh << " => " << obj.filterLabels()[hh] << ": pt =  " << obj.pt() << ", eta = " << obj.eta() << ", phi = " << obj.phi() << std::endl;
+               if(debug) std::cout << "" << std::endl;	  
+
+               if (path=="HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1") {	  
+                  if(obj.filterLabels()[hh].find("hltTau3MuIsoFilterCharge1") != std::string::npos) {  
+                     tauObjNumber = hh;
+                  }
+               }
+               if (path=="HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15") {	  
+                  if(obj.filterLabels()[hh].find("hltTau3MuIsoFilter") != std::string::npos) {  
+                     tauObjNumber = hh;
+                  }
+               }
+            }
+            if(debug && tauObjNumber>=0) std::cout << "Loop over filters done, my Tau filter found" << std::endl;
+            if(debug && tauObjNumber<0)  std::cout << "Loop over filters done, my filters NOT found" << std::endl;
+
+            // here HLT obj vs reco triplet candidate
+            TVector3 objTV3;
+            objTV3.SetPtEtaPhi( obj.pt(), obj.eta(), obj.phi() );
+            Float_t deltaR = fabs(tauTV3.DeltaR(objTV3));
+
+            // here HLT-tau candidates
+            if (tauObjNumber>=0) {  
+               if(debug) std::cout<< "DeltaR = " << deltaR << std::endl;
+               if(debug) std::cout << "This is a tau HLT candidate" << endl;
+               if(deltaR < drForTriggerMatch_){    
+                  frs[ipath]=1;  
+                  if (deltaR < minDr){
+                     minDr = deltaR;
+                  }
+                  if(debug) std::cout << "This object is matched with tau: minDr = " << minDr << std::endl;
+                  if(debug) std::cout << "Offline: " << tauTV3.Pt() << " " << tauTV3.Eta() << " " << tauTV3.Phi() << std::endl;
+                  if(debug) std::cout << "HLT: "     << obj.pt()    << " " << obj.eta()    << " " << obj.phi()    << std::endl;
+                  if(debug) std::cout << tauObjNumber << std::endl;
+               }
+            }
+
+         } // Loop over trigger object
+
+         // Minimum dR between reco triplet and all its matched HLT objects for this HLT path
+         temp_DR[ipath]=minDr;
 	
       } // Loop over HLT paths
-      
+
       if(debug) {
-	std::cout << std::endl;
-	std::cout << "Summary for this reco tau: " << std::endl;
-	int size1 = frs.size();
-	int size2 = temp_DR.size();
-	if (size1!=size2) 
-	  std::cout << "problem with size: " << size1 << " " << size2 << std::endl;
-	else {
-	  std::cout << "size ok: " << size1 << std::endl;	
-	  for (int jj=0; jj<size1; jj++) std::cout << "fired = " << frs[jj] << ", dR = " << temp_DR[jj] << std::endl;
-	}					 
+         std::cout << std::endl;
+         std::cout << "Summary for this reco tau: " << std::endl;
+         int size1 = frs.size();
+         int size2 = temp_DR.size();
+         if (size1!=size2) 
+            std::cout << "problem with size: " << size1 << " " << size2 << std::endl;
+         else {
+            std::cout << "size ok: " << size1 << std::endl;	
+            for (int jj=0; jj<size1; jj++) std::cout << "fired = " << frs[jj] << ", dR = " << temp_DR[jj] << std::endl;
+         }					 
       } 
-      
+
       int mytriggersize = frs.size();
       for (int jj=0; jj<mytriggersize; jj++) {
-	std::string namedr = HLTPaths_[jj]+"_dr";
-	muon_triplet.addUserInt(HLTPaths_[jj],frs[jj]);  
-	muon_triplet.addUserFloat(namedr,temp_DR[jj]); 
+         std::string namedr = HLTPaths_[jj]+"_dr";
+         muon_triplet.addUserInt(HLTPaths_[jj],frs[jj]);  
+         muon_triplet.addUserFloat(namedr,temp_DR[jj]); 
       }					 
-      
+
       // HLT / offline match for last HLT filter - end
       // -----------------------------------------------------
+
+      // 1st KIN FIT WITHOUT VTX COSTRAINT
+      //   Tau infos after 1st fit
+      TVector3 Tau_wovc(fitted_cand.globalMomentum().x(),
+            fitted_cand.globalMomentum().y(),
+            fitted_cand.globalMomentum().z());
+      muon_triplet.addUserFloat("fitted_wovc_pt",  Tau_wovc.Pt());
+      muon_triplet.addUserFloat("fitted_wovc_eta", Tau_wovc.Eta());
+      muon_triplet.addUserFloat("fitted_wovc_phi", Tau_wovc.Phi());
+
+      // Tau vertex after fit
+      // KINEMATIC FIT RESULTS
+      // 3Mu vertex after fit
+      muon_triplet.addUserFloat("fitted_vtxX",  fitted_vtx->position().x());
+      muon_triplet.addUserFloat("fitted_vtxY",  fitted_vtx->position().y());
+      muon_triplet.addUserFloat("fitted_vtxZ",  fitted_vtx->position().z());
+      muon_triplet.addUserFloat("fitted_vtxEx", fitted_vtx->error().cxx());
+      muon_triplet.addUserFloat("fitted_vtxEy", fitted_vtx->error().cyy());
+      muon_triplet.addUserFloat("fitted_vtxEz", fitted_vtx->error().czz());
+      // Tau candidate kinematics after fit
+      muon_triplet.addUserFloat("fitted_pt"  , fittedTau_P4.Perp()); 
+      muon_triplet.addUserFloat("fitted_eta" , fittedTau_P4.Eta());
+      muon_triplet.addUserFloat("fitted_phi" , fittedTau_P4.Phi());
+      muon_triplet.addUserFloat("fitted_mass", fitted_cand.mass()); 
+
+      // PV no-refit
+      muon_triplet.addUserFloat("PV_x",  PV.position().x());
+      muon_triplet.addUserFloat("PV_y",  PV.position().y());
+      muon_triplet.addUserFloat("PV_z",  PV.position().z());
+
+      // PV refit
+      muon_triplet.addUserFloat("PVrefit_isValid", PVrefit_valid);
+      muon_triplet.addUserFloat("PVrefit_chi2", (PVrefit_valid ? PVrefit_vtx.totalChiSquared() : -99));
+      muon_triplet.addUserFloat("PVrefit_ndof", (PVrefit_valid ? PVrefit_vtx.degreesOfFreedom(): -99));
+      muon_triplet.addUserFloat("PVrefit_x",    (PVrefit_valid ? PVrefit_vtx.position().x(): -99));
+      muon_triplet.addUserFloat("PVrefit_y",    (PVrefit_valid ? PVrefit_vtx.position().y(): -99));
+      muon_triplet.addUserFloat("PVrefit_z",    (PVrefit_valid ? PVrefit_vtx.position().z(): -99));
+
+
+      // ISOLATION info
+      // pT > 0.0 GeV
+      muon_triplet.addUserFloat("iso_ptChargedFromPV", ptChargedFromPV);
+      muon_triplet.addUserFloat("iso_ptChargedFromPU", ptChargedFromPU);
+      muon_triplet.addUserFloat("iso_ptPhotons", ptPhotons);
+      muon_triplet.addUserFloat("iso_ptNeutral", ptNeutral);
+      muon_triplet.addUserFloat("iso_ptChargedForHLT", ptChargedForHLT);
+      muon_triplet.addUserFloat("absIsolation",TauAbsIsolation);
+      muon_triplet.addUserFloat("absLepIsolation",lepTauAbsIsolation);
+      // pT > 0.5 GeV
+      muon_triplet.addUserFloat("iso_ptChargedFromPV_pT05", ptChargedFromPV_pT05);
+      muon_triplet.addUserFloat("iso_ptChargedFromPU_pT05", ptChargedFromPU_pT05);
+      muon_triplet.addUserFloat("iso_ptPhotons_pT05", ptPhotons_pT05);
+      muon_triplet.addUserFloat("iso_ptNeutral_pT05", ptNeutral_pT05);
+      muon_triplet.addUserFloat("iso_ptChargedForHLT_pT05", ptChargedForHLT_pT05);
+      muon_triplet.addUserFloat("absIsolation_pT05",TauAbsIsolation_pT05);
+      muon_triplet.addUserFloat("absLepIsolation_pT05",lepTauAbsIsolation_pT05);
+
+      // useful quantities for BDT
+      muon_triplet.addUserFloat("dZmu12", dz_mu12); 
+      muon_triplet.addUserFloat("dZmu13", dz_mu13);
+      muon_triplet.addUserFloat("dZmu23", dz_mu23);
+      muon_triplet.addUserFloat("Lxy_3muVtxBS", Lxy_3muVtxBS);
+      muon_triplet.addUserFloat("errLxy_3muVtxBS", errLxy_3muVtxBS);
+      muon_triplet.addUserFloat("sigLxy_3muVtxBS", sigLxy_3muVtxBS);
+      muon_triplet.addUserFloat("Cos2D_LxyP3mu",CosAlpha2D_LxyP3mu),
+
+
+      // save further quantities, to be saved in the final ntuples: muons before fit
+      // Muons post fit are saved only after the very final B fit
+      muon_triplet.addUserFloat("mu1_pt",  l1_ptr->pt());
+      muon_triplet.addUserFloat("mu1_eta", l1_ptr->eta());
+      muon_triplet.addUserFloat("mu1_phi", l1_ptr->phi());
+      muon_triplet.addUserFloat("mu1_drForHLT",  l1_ptr->userFloat("drForHLT"));
+      muon_triplet.addUserInt("mu1_charge" ,l1_ptr->charge());
+      muon_triplet.addUserInt("mu1_trackQuality",  l1_ptr->userInt("trackQuality"));
+      muon_triplet.addUserFloat("mu2_pt",  l2_ptr->pt());
+      muon_triplet.addUserFloat("mu2_eta", l2_ptr->eta());
+      muon_triplet.addUserFloat("mu2_phi", l2_ptr->phi());
+      muon_triplet.addUserFloat("mu2_drForHLT",  l2_ptr->userFloat("drForHLT"));   
+      muon_triplet.addUserInt("mu2_charge" ,l2_ptr->charge());
+      muon_triplet.addUserInt("mu2_trackQuality",  l2_ptr->userInt("trackQuality"));
+      muon_triplet.addUserFloat("mu3_pt",  l3_ptr->pt());
+      muon_triplet.addUserFloat("mu3_eta", l3_ptr->eta());
+      muon_triplet.addUserFloat("mu3_phi", l3_ptr->phi());
+      muon_triplet.addUserFloat("mu3_drForHLT",  l3_ptr->userFloat("drForHLT"));   
+      muon_triplet.addUserInt("mu3_charge" ,l3_ptr->charge());
+      muon_triplet.addUserInt("mu3_trackQuality",  l3_ptr->userInt("trackQuality"));
+
+      // di-muons quantities
+      muon_triplet.addUserFloat("mu1mu2_dR", reco::deltaR(*l1_ptr, *l2_ptr));
+      muon_triplet.addUserFloat("mu1mu3_dR", reco::deltaR(*l1_ptr, *l3_ptr));
+      muon_triplet.addUserFloat("mu2mu3_dR", reco::deltaR(*l2_ptr, *l3_ptr));
+
+      // save further quantities, to be saved in the final ntuples: fired paths
+      muon_triplet.addUserInt("mu1_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1", l1_ptr->userInt("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1"));
+      muon_triplet.addUserInt("mu1_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15", l1_ptr->userInt("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"));
+      muon_triplet.addUserInt("mu1_fired_DoubleMu4_3_LowMass", l1_ptr->userInt("HLT_DoubleMu4_3_LowMass"));
+
+
+      muon_triplet.addUserInt("mu2_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1", l2_ptr->userInt("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1"));
+      muon_triplet.addUserInt("mu2_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15", l2_ptr->userInt("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"));
+      muon_triplet.addUserInt("mu2_fired_DoubleMu4_3_LowMass", l2_ptr->userInt("HLT_DoubleMu4_3_LowMass"));
+
+      muon_triplet.addUserInt("mu3_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1", l3_ptr->userInt("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1"));
+      muon_triplet.addUserInt("mu3_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15", l3_ptr->userInt("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"));
+      muon_triplet.addUserInt("mu3_fired_DoubleMu4_3_LowMass", l3_ptr->userInt("HLT_DoubleMu4_3_LowMass"));
       
-        // 1st KIN FIT WITHOUT VTX COSTRAINT
-        //   Tau infos after 1st fit
-        TVector3 Tau_wovc(fitted_cand.globalMomentum().x(),
-                          fitted_cand.globalMomentum().y(),
-                          fitted_cand.globalMomentum().z());
-        muon_triplet.addUserFloat("fitted_wovc_pt",  Tau_wovc.Pt());
-        muon_triplet.addUserFloat("fitted_wovc_eta", Tau_wovc.Eta());
-        muon_triplet.addUserFloat("fitted_wovc_phi", Tau_wovc.Phi());
-        
-        // Tau vertex after fit
-        // KINEMATIC FIT RESULTS
-        // 3Mu vertex after fit
-        muon_triplet.addUserFloat("fitted_vtxX",  fitted_vtx->position().x());
-        muon_triplet.addUserFloat("fitted_vtxY",  fitted_vtx->position().y());
-        muon_triplet.addUserFloat("fitted_vtxZ",  fitted_vtx->position().z());
-        muon_triplet.addUserFloat("fitted_vtxEx", fitted_vtx->error().cxx());
-        muon_triplet.addUserFloat("fitted_vtxEy", fitted_vtx->error().cyy());
-        muon_triplet.addUserFloat("fitted_vtxEz", fitted_vtx->error().czz());
-        // Tau candidate kinematics after fit
-        muon_triplet.addUserFloat("fitted_pt"  , fittedTau_P4.Perp()); 
-        muon_triplet.addUserFloat("fitted_eta" , fittedTau_P4.Eta());
-        muon_triplet.addUserFloat("fitted_phi" , fittedTau_P4.Phi());
-        muon_triplet.addUserFloat("fitted_mass", fitted_cand.mass()); 
-
-        // PV no-refit
-        muon_triplet.addUserFloat("PV_x",  PV.position().x());
-        muon_triplet.addUserFloat("PV_y",  PV.position().y());
-        muon_triplet.addUserFloat("PV_z",  PV.position().z());
-         
-        // PV refit
-        muon_triplet.addUserFloat("PVrefit_isValid", PVrefit_valid);
-        muon_triplet.addUserFloat("PVrefit_chi2", (PVrefit_valid ? PVrefit_vtx.totalChiSquared() : -99));
-        muon_triplet.addUserFloat("PVrefit_ndof", (PVrefit_valid ? PVrefit_vtx.degreesOfFreedom(): -99));
-        muon_triplet.addUserFloat("PVrefit_x",    (PVrefit_valid ? PVrefit_vtx.position().x(): -99));
-        muon_triplet.addUserFloat("PVrefit_y",    (PVrefit_valid ? PVrefit_vtx.position().y(): -99));
-        muon_triplet.addUserFloat("PVrefit_z",    (PVrefit_valid ? PVrefit_vtx.position().z(): -99));
-         
-
-        // ISOLATION info
-        // pT > 0.0 GeV
-        muon_triplet.addUserFloat("iso_ptChargedFromPV", ptChargedFromPV);
-        muon_triplet.addUserFloat("iso_ptChargedFromPU", ptChargedFromPU);
-        muon_triplet.addUserFloat("iso_ptPhotons", ptPhotons);
-        muon_triplet.addUserFloat("iso_ptChargedForHLT", ptChargedForHLT);
-        muon_triplet.addUserFloat("absIsolation",TauAbsIsolation);
-        // pT > 0.5 GeV
-        muon_triplet.addUserFloat("iso_ptChargedFromPV_pT05", ptChargedFromPV_pT05);
-        muon_triplet.addUserFloat("iso_ptChargedFromPU_pT05", ptChargedFromPU_pT05);
-        muon_triplet.addUserFloat("iso_ptPhotons_pT05", ptPhotons_pT05);
-        muon_triplet.addUserFloat("iso_ptChargedForHLT_pT05", ptChargedForHLT_pT05);
-        muon_triplet.addUserFloat("absIsolation_pT05",TauAbsIsolation_pT05);
-
-        // useful quantities for BDT
-        muon_triplet.addUserFloat("dZmu12", dz_mu12); 
-        muon_triplet.addUserFloat("dZmu13", dz_mu13);
-        muon_triplet.addUserFloat("dZmu23", dz_mu23);
-        muon_triplet.addUserFloat("Lxy_3muVtxBS", Lxy_3muVtxBS);
-        muon_triplet.addUserFloat("errLxy_3muVtxBS", errLxy_3muVtxBS);
-        muon_triplet.addUserFloat("sigLxy_3muVtxBS", sigLxy_3muVtxBS);
-        muon_triplet.addUserFloat("Cos2D_LxyP3mu",CosAlpha2D_LxyP3mu),
-      
-
-        // save further quantities, to be saved in the final ntuples: muons before fit
-        // Muons post fit are saved only after the very final B fit
-        muon_triplet.addUserFloat("mu1_pt",  l1_ptr->pt());
-        muon_triplet.addUserFloat("mu1_eta", l1_ptr->eta());
-        muon_triplet.addUserFloat("mu1_phi", l1_ptr->phi());
-        muon_triplet.addUserFloat("mu1_drForHLT",  l1_ptr->userFloat("drForHLT"));
-        muon_triplet.addUserInt("mu1_charge" ,l1_ptr->charge());
-        muon_triplet.addUserInt("mu1_trackQuality",  l1_ptr->userInt("trackQuality"));
-        muon_triplet.addUserFloat("mu2_pt",  l2_ptr->pt());
-        muon_triplet.addUserFloat("mu2_eta", l2_ptr->eta());
-        muon_triplet.addUserFloat("mu2_phi", l2_ptr->phi());
-        muon_triplet.addUserFloat("mu2_drForHLT",  l2_ptr->userFloat("drForHLT"));   
-        muon_triplet.addUserInt("mu2_charge" ,l2_ptr->charge());
-        muon_triplet.addUserInt("mu2_trackQuality",  l2_ptr->userInt("trackQuality"));
-        muon_triplet.addUserFloat("mu3_pt",  l3_ptr->pt());
-        muon_triplet.addUserFloat("mu3_eta", l3_ptr->eta());
-        muon_triplet.addUserFloat("mu3_phi", l3_ptr->phi());
-        muon_triplet.addUserFloat("mu3_drForHLT",  l3_ptr->userFloat("drForHLT"));   
-        muon_triplet.addUserInt("mu3_charge" ,l3_ptr->charge());
-        muon_triplet.addUserInt("mu3_trackQuality",  l3_ptr->userInt("trackQuality"));
-
-        // di-muons quantities
-        muon_triplet.addUserFloat("mu1mu2_dR", reco::deltaR(*l1_ptr, *l2_ptr));
-        muon_triplet.addUserFloat("mu1mu3_dR", reco::deltaR(*l1_ptr, *l3_ptr));
-        muon_triplet.addUserFloat("mu2mu3_dR", reco::deltaR(*l2_ptr, *l3_ptr));
-
-        // save further quantities, to be saved in the final ntuples: fired paths
-        muon_triplet.addUserInt("mu1_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1", l1_ptr->userInt("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1"));
-        muon_triplet.addUserInt("mu1_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15", l1_ptr->userInt("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"));
-        muon_triplet.addUserInt("mu1_fired_DoubleMu4_3_LowMass", l1_ptr->userInt("HLT_DoubleMu4_3_LowMass"));
-
-
-        muon_triplet.addUserInt("mu2_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1", l2_ptr->userInt("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1"));
-        muon_triplet.addUserInt("mu2_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15", l2_ptr->userInt("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"));
-        muon_triplet.addUserInt("mu2_fired_DoubleMu4_3_LowMass", l2_ptr->userInt("HLT_DoubleMu4_3_LowMass"));
-
-        muon_triplet.addUserInt("mu3_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1", l3_ptr->userInt("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1"));
-        muon_triplet.addUserInt("mu3_fired_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15", l3_ptr->userInt("HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15"));
-        muon_triplet.addUserInt("mu3_fired_DoubleMu4_3_LowMass", l3_ptr->userInt("HLT_DoubleMu4_3_LowMass"));
-        
-        // push in the event
-        ret_value->push_back(muon_triplet);
+      // push in the event
+      ret_value->push_back(muon_triplet);
       }
     }
-  }
+   }
 
   evt.put(std::move(ret_value),  "SelectedTriMuons");
 }
