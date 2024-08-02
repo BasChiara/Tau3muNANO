@@ -1,4 +1,7 @@
 # Code for Tau3Mu-related analyses
+Use this code to produce nanoAOD ntuples from miniAOD [<v4] for $W\to\tau(3\mu)\nu$ Run3 analysis.\
+DATA : process eras C, D and E of 2022 with this code\
+MC   : miniAODv4 available for whole 2022 and 2023 -> use branch `CMSSW_13_0_13`
 
 ## Getting started
 
