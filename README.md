@@ -19,12 +19,7 @@ git cms-init
 ```
 git clone -b CMSSW_12_4_11 --single-branch git@github.com:BasChiara/Tau3muNANO.git ./PhysicsTools/Tau3muNANO
 cd PhysicsTools/Tau3muNANO
-```
-
-## Make sure we use a consistent tag
-```
-git fetch origin
-git checkout -b myBranch origin/myBranch
+git pull
 ```
 
 ## add your own fork as a remote. Skip if you dont have one
