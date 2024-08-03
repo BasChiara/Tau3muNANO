@@ -21,6 +21,11 @@ git clone -b CMSSW_12_4_11 --single-branch git@github.com:BasChiara/Tau3muNANO.g
 cd PhysicsTools/Tau3muNANO
 git pull
 ```
+## Compile
+```
+cd ../..
+scramv1 b
+```
 
 ## add your own fork as a remote. Skip if you dont have one
 ```
