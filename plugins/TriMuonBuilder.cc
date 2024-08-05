@@ -154,14 +154,14 @@ void TriMuonBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
   // output
   std::unique_ptr<pat::CompositeCandidateCollection> ret_value(new pat::CompositeCandidateCollection());
   
-  for(size_t l1_idx = 0; l1_idx < muons->size(); ++l1_idx) {
-    edm::Ptr<pat::Muon> l1_ptr(muons, l1_idx);
-    if(!l1_selection_(*l1_ptr)) continue;
+   for(size_t l1_idx = 0; l1_idx < muons->size(); ++l1_idx) {
+      edm::Ptr<pat::Muon> l1_ptr(muons, l1_idx);
+      if(!l1_selection_(*l1_ptr)) continue;
     
-    for(size_t l2_idx = l1_idx + 1; l2_idx < muons->size(); ++l2_idx) {
-      edm::Ptr<pat::Muon> l2_ptr(muons, l2_idx);
-      if(!l2_selection_(*l2_ptr)) continue;
-      if (l1_idx==l2_idx) continue;  // Muons must be different
+      for(size_t l2_idx = l1_idx + 1; l2_idx < muons->size(); ++l2_idx) {
+         edm::Ptr<pat::Muon> l2_ptr(muons, l2_idx);
+         if(!l2_selection_(*l2_ptr)) continue;
+         if (l1_idx==l2_idx) continue;  // Muons must be different
 
       for(size_t l3_idx = l2_idx + 1; l3_idx < muons->size(); ++l3_idx) {
         edm::Ptr<pat::Muon> l3_ptr(muons, l3_idx);
@@ -187,6 +187,7 @@ void TriMuonBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
         // ** TRI MUON VERTEX ** //
         // Kinematic vertex fit
         if( !pre_vtx_selection_(muon_triplet) ) continue;
+        // check if tracks have a valid number of hits
         if(debug) std::cout << "  muon_triplet charge " << muon_triplet.charge() << std::endl;
         KinVtxFitter fitter(
                 {ttracks->at(l1_idx), ttracks->at(l2_idx), ttracks->at(l3_idx)},
@@ -206,9 +207,13 @@ void TriMuonBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
         muon_triplet.addUserFloat("vtx_Ndof", fitter.dof());
         RefCountedKinematicVertex fitted_vtx = fitter.fitted_refvtx();
         muon_triplet.addUserInt("vtx_isValid", fitted_vtx->vertexIsValid());
-
+        // check fit vertex covariance matrix
+        auto fitted_vtx_cov = fitted_vtx->error().matrix(); //AlgebraicSymMatrix33
+        float trace_cov = 0;
+        for(int i=0; i<3; i++) trace_cov += fitted_vtx_cov(i,i);
+        if(trace_cov <= 1e-4) continue;
         if( !post_vtx_selection_(muon_triplet) ) continue;
-
+        //std::cout << " [TriMuonBuilder] Triplet selected " << std::endl;
         // * fit candidate
         TLorentzVector fittedTau_P4;
         fittedTau_P4.SetPtEtaPhiM(fitted_cand.globalMomentum().perp(), 
@@ -221,9 +226,8 @@ void TriMuonBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
         PackedCandidatesCollection PV_PFCands;
         //std::cout << " [refit PV] number PV " << pkdPFcand_hdl->size() << std::endl;
         for(PackedCandidatesCollection::const_iterator pfc = pkdPFcand_hdl->begin(); pfc != pkdPFcand_hdl->end(); ++pfc){
-            if(pfc->charge() == 0 || pfc->vertexRef().isNull()) continue;
+            if((pfc->charge() == 0) || (pfc->vertexRef().isNull())) continue;
             if(!( pfc->bestTrack() )) continue;
-            
             // require tracks from PV 
             //std::cout << " [refit PV] PF candidates keys " << pfc->vertexRef().key()  << std::endl;
             if( pfc->vertexRef().key() != 0) continue; 
@@ -238,19 +242,27 @@ void TriMuonBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
             //reco::TransientTrack PVttrack = theTransientTrackBuilder->build(PVtrack_ref); 
         for (PackedCandidatesCollection::const_iterator cand_it = PV_PFCands.begin(); cand_it != PV_PFCands.end(); ++cand_it){
             reco::Track cand_track = *(cand_it->bestTrack()); 
+            // add condition on number of hits to address "BasicSingleVertexState::could not invert weight matrix" 
+            if( cand_track.hitPattern().numberOfValidHits() < 3 ) continue;
             //reco::TransientTrack PVttrack = theTransientTrackBuilder->build( cand_track ); 
             //std::cout << " [refit PV] isValid track " << PVttrack.isValid() << std::endl;
             //PVtracks.push_back(PVttrack);
         }
+        // refit PV only if there are at least 2 tracks
         bool PVrefit_valid = false;
         TransientVertex PVrefit_vtx;
         //std::cout << " [refit PV] N transient tracks for refit " << PVtracks.size() << std::endl;
-        if(PVtracks.size() > 1){
-           KalmanVertexFitter PV_fitter(true);
-           PVrefit_vtx = PV_fitter.vertex(PVtracks);
-           PVrefit_valid = PVrefit_vtx.isValid();
+        if(PVtracks.size() > 2){
+            KalmanVertexFitter PV_fitter(true);
+            //try{
+            //   PVrefit_vtx = PV_fitter.vertex(PVtracks);
+            //   PVrefit_valid = PVrefit_vtx.isValid();
+            //} catch (VertexException& e) {
+            //  edm::LogWarning(" PFDisplacedVertexFinder ") << " failure in KalmanVertexFitter! " << e.what();
+            //}
         }
 
+   
         // Lxy BS - 3mu-vtx
         // from : https://cmssdt.cern.ch/lxr/source/HLTrigger/btau/plugins/HLTDisplacedmumuFilter.cc
         GlobalPoint fittedVtxPoint(fitted_vtx->position().x(), fitted_vtx->position().y(), fitted_vtx->position().z());
@@ -287,6 +299,7 @@ void TriMuonBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
         muon_triplet.addUserFloat("mu13_DCA",DCA13);
         
         // ** DI MUON IN TAU CAND //
+        //std::cout << " [TriMuonBuilder] DiMuon in TriMuon " << std::endl;
         // di-muon vtx probability (used at HLT)
         // * mu_1 - mu_2
         KinVtxFitter fitter_mu12({ttracks->at(l1_idx), ttracks->at(l2_idx)}, {l1_ptr->mass(), l2_ptr->mass()}, {LEP_SIGMA, LEP_SIGMA});
@@ -566,7 +579,6 @@ void TriMuonBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
       }
     }
    }
-
   evt.put(std::move(ret_value),  "SelectedTriMuons");
 }
 
@@ -575,10 +587,12 @@ bool TriMuonBuilder::vetoResonances(edm::Event& iEvt, const std::vector<size_t> 
 
     bool isMatchingResonance = false; 
     bool debug = false;
+    // check if the tau candidate is made of exactly 3 muons
     if (tauMu_idcs.size() != 3){
       std::cout << "ERROR in TriMuonBuilder::vetoResonances() : Tau-cand must be made of exactly 3 muons" << std::endl;
       return -1;
     }
+   // get muon collection
     edm::Handle<MuonCollection> all_muons;
     iEvt.getByToken(src_, all_muons);
     edm::Handle<TransientTrackCollection> all_muTtracks;
@@ -586,26 +600,34 @@ bool TriMuonBuilder::vetoResonances(edm::Event& iEvt, const std::vector<size_t> 
 
     const float fitProb_min = 0.05;
     float best_prob = -1., best_mass = 0.;
-
+   // loop over all muons in the event
     for(size_t mu_idx = 0; mu_idx < all_muons->size(); ++mu_idx) {
-      // not in the tau candidate
+      // take muons not in the triplet and apply same basic selection
       if ( std::find(tauMu_idcs.begin(), tauMu_idcs.end(), mu_idx) != tauMu_idcs.end()){
         if(debug) std::cout << "  Skip muon " << mu_idx << std::endl;
         continue;
       }
       edm::Ptr<pat::Muon> mu(all_muons, mu_idx);
+      if(!l1_selection_(*mu)) continue;
+      // loop over muons in the triplet
       for(size_t Tmu_idx = 0; Tmu_idx < 3; ++Tmu_idx){
           edm::Ptr<pat::Muon> TauMu(all_muons, tauMu_idcs[Tmu_idx]);
           // opposite charge
           if((TauMu->charge() + mu->charge()) != 0) continue;
           if(debug) std::cout << " Veto resonance mu_tau" << tauMu_idcs[Tmu_idx] <<" + mu_" << mu_idx << std::endl;
+          // check if muon tracks are good 
           // fit
-          KinVtxFitter fitter(
+         
+         KinVtxFitter fitter(
                   {all_muTtracks->at(tauMu_idcs[Tmu_idx]), all_muTtracks->at(mu_idx)},
                   {TauMu->mass(), mu->mass()},
                   {LEP_SIGMA, LEP_SIGMA} //some small sigma for the particle mass
-                  );
-          if ( !fitter.success() ) continue;
+         );
+         if ( !fitter.success() ) continue;
+         auto vtx_cov_matrix = (fitter.fitted_refvtx())->error().matrix();
+         float trace = 0;
+         for(int i=0; i<3; i++) trace += vtx_cov_matrix(i,i);
+         if (trace <= 1e-4) continue;
           if(debug) std::cout << " Fit-done : fit prob = "<< fitter.prob() << " di-muon mass = " << fitter.fitted_candidate().mass() << std::endl; 
           // require good di-muon vertex (prob > 5%)
           if(fitter.prob() < fitProb_min) continue;

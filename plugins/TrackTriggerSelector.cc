@@ -229,8 +229,13 @@ void TrackTriggerSelector::produce(edm::StreamID, edm::Event& iEvent, const edm:
       
          // here HLT obj vs reco track candidates
          TVector3 trkTV3, objTV3;
+         if (TMath::IsNaN(trk.pt()) || TMath::IsNaN(trk.eta()) || TMath::IsNaN(trk.phi())) continue;
          trkTV3.SetPtEtaPhi( trk.pt(), trk.eta(), trk.phi() );
+         if (TMath::IsNaN(obj.pt()) || TMath::IsNaN(obj.eta()) || TMath::IsNaN(obj.phi())) continue;
          objTV3.SetPtEtaPhi( obj.pt(), obj.eta(), obj.phi() );
+         //std::cout << "Before matching" << std::endl;
+         //std::cout << "Offline (pT, eta, phi): " << trk.pt() << " " << trk.eta() << " " << trk.phi() << std::endl;
+         //std::cout << "Trg obj (pT, eta, phi): " << obj.pt() << " " << obj.eta() << " " << obj.phi() << std::endl;
          Float_t deltaR = fabs(trkTV3.DeltaR(objTV3));
     
          // here HLT-trk candidates
