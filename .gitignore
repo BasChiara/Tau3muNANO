@@ -4,6 +4,7 @@
 
 # CRAB report
 production/Tau3MuNano*_*/*
+production/Tau3MuPUprofile*_*/*
 production/DsPhiMuMuPiNano_*/*
 *.csv
 

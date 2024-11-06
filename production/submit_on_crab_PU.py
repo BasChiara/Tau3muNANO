@@ -11,7 +11,7 @@ config = config()
 config.section_('General')
 config.General.transferOutputs = True
 config.General.transferLogs = True
-config.General.workArea = 'Tau3MuNano2023_%s' % production_tag
+config.General.workArea = 'Tau3MuPUprofile_%s' % production_tag
 
 config.section_('Data')
 config.Data.publication = False
@@ -23,7 +23,7 @@ config.Data.inputDBS = 'global'
 
 config.section_('JobType')
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = '../test/run_nanoMuonTriplets_2022_cfg.py'
+config.JobType.psetName = '../test/makePUprofile_miniAOD.py'
 config.JobType.allowUndistributedCMSSW = True
 
 config.section_('User')
@@ -63,20 +63,25 @@ if __name__ == '__main__':
     for sample, info in doc['samples'].items():
       # Input DBS
       input_dbs = info['dbs'] if 'dbs' in info else None
+      isLocal = info['isLocal'] if 'isLocal' in info else False
       # Given we have repeated datasets check for different parts
       parts = info['parts'] if 'parts' in info else [None]
       for part in parts:
         name = sample % part if part is not None else sample
-        
         # filter names according to what we need
         if not fnmatch(name, args.filter): continue
         print('submitting', name)
 
         isMC = info['isMC']
-
-        config.Data.inputDataset = info['dataset'] % part \
-                                   if part is not None else \
-                                      info['dataset']
+        
+        if not isLocal :
+            config.Data.inputDataset = info['dataset'] % part \
+                                    if part is not None else \
+                                        info['dataset']
+            if input_dbs : config.Data.inputDBS = input_dbs 
+        else:
+            config.Data.userInputFiles = open(info['dataset']).readlines()
+            config.Data.outputPrimaryDataset = sample + '_MGv5NLO_pythia8_NanoAOD'
 
         config.General.requestName = name
         common_branch = 'mc' if isMC else 'data'
@@ -99,12 +104,13 @@ if __name__ == '__main__':
         )
         
         config.JobType.pyCfgParams = [
-            'isMC=%s' % isMC, 'reportEvery=1000',
+            'isMC=%s' % isMC, 
+            'reportEvery=1000',
             'tag=%s' % production_tag,
             'globalTag=%s' % globaltag,
         ]
         
-        config.JobType.outputFiles = ['_'.join(['tau3muNANO', 'mc' if isMC else 'data', production_tag])+'.root']
+        config.JobType.outputFiles = ['_'.join(['tau3muPUprofile', 'mc' if isMC else 'data', production_tag])+'.root']
 
         print()
         print(config)
