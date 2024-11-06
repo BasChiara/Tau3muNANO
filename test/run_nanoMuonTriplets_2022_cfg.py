@@ -15,7 +15,7 @@ options.register('Era','2022postEE',
     VarParsing.varType.string,
     "Set data taking period : 2022preEE, 2022postEE, 2023preBPix, 2023postBPix"
 )
-options.register('physProcess','ppW3MuNu',
+options.register('physProcess','tau3mu',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Set the phys process : tau3mu, DsPhiPi, ppW3MuNu"
@@ -47,8 +47,8 @@ options.register('skip', 0,
 )
 
 # set number of events
-options.setDefault('maxEvents', -1) 
-#options.setDefault('maxEvents', 1000)
+#options.setDefault('maxEvents', -1) 
+options.setDefault('maxEvents', 100)
 # set physic process
 if not options.physProcess :
     phys_process = 'tau3mu'
