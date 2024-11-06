@@ -7,9 +7,9 @@ samples:
   #
   #  MC
   #  
-  #WnuTau3Mu_2023preBPix:
-  #  dataset: /WtoTauNu_Tauto3Mu_TuneCP5_13p6TeV_pythia8/Run3Summer23MiniAODv4-130X_mcRun3_2023_realistic_v14-v3/MINIAODSIM 
-  #  isMC: True  
+  WnuTau3Mu_2023preBPix:
+    dataset: /WtoTauNu_Tauto3Mu_TuneCP5_13p6TeV_pythia8/Run3Summer23MiniAODv4-130X_mcRun3_2023_realistic_v14-v3/MINIAODSIM 
+    isMC: True  
   DstoPhiPi_2023preBPix:
     dataset: /DstoPhiPi_Phito2Mu_MuFilter_TuneCP5_13p6TeV_pythia8-evtgen/Run3Summer23MiniAODv4-130X_mcRun3_2023_realistic_v14-v2/MINIAODSIM 
     isMC: True  
