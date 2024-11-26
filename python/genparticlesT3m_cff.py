@@ -9,7 +9,8 @@ finalGenParticlesT3m = finalGenParticles.clone(
   src = cms.InputTag("mergedGenParticles"),
   select = cms.vstring(
 	"drop *",
-        "keep++ (abs(pdgId) == 24)",  #keep all W bosons + their daughters & granddaughters
+        "keep++ (abs(pdgId) == 24)",  #keep all W bosons  + their daughters & granddaughters
+        "keep++ (abs(pdgId) == 23)",  #keep all Z leptons + their daughters & granddaughters
         "keep++ (abs(pdgId) == 431)", #keep all Ds+ mesons with their daughters & granddaughters 
    )
 )

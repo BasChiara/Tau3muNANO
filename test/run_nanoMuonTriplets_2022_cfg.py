@@ -15,10 +15,10 @@ options.register('Era','2022postEE',
     VarParsing.varType.string,
     "Set data taking period : 2022preEE, 2022postEE, 2023preBPix, 2023postBPix"
 )
-options.register('physProcess','tau3mu',
+options.register('physProcess','Ztau3mu',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
-    "Set the phys process : tau3mu, DsPhiPi, ppW3MuNu"
+    "Set the phys process : tau3mu, DsPhiPi, ppW3MuNu, Ztau3mu"
 )
 options.register('globalTag', 'NOTSET',
     VarParsing.multiplicity.singleton,
@@ -48,7 +48,7 @@ options.register('skip', 0,
 
 # set number of events
 #options.setDefault('maxEvents', -1) 
-options.setDefault('maxEvents', 100)
+options.setDefault('maxEvents', 1000)
 # set physic process
 if not options.physProcess :
     phys_process = 'tau3mu'
@@ -108,6 +108,12 @@ test_mc_inFiles_process_era = {
         '2022postEE'    : ['/store/mc/Run3Summer22EEMiniAODv3/DstoPhiPi_Phito2Mu_MuFilter_TuneCP5_13p6TeV_pythia8-evtgen/MINIAODSIM/124X_mcRun3_2022_realistic_postEE_v1-v2/2810000/00589525-be33-4abd-af78-428bb9ace158.root'],
         '2023preBPix'   : [''],
         '2023postBPix'  : [''],
+    },
+    'Ztau3mu' : {
+        '2022preEE'     : [],
+        '2022postEE'    : ['/store/mc/Run3Summer22EEMiniAODv4/Zto2Tauto3Mu_M-60to120_TuneCP5_13p6TeV_pythia8-evtgen/MINIAODSIM/130X_mcRun3_2022_realistic_postEE_v6-v2/2530000/13a2074f-db99-45c0-9bbb-0274542e4cf1.root'],
+        '2023preBPix'   : [],
+        '2023postBPix'  : [],
     }
 }
 test_data_inFiles_era = {
