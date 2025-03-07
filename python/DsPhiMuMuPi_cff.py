@@ -58,7 +58,7 @@ METforDsPhiPi = cms.EDProducer('TauPlusMETBuilder',
     met = cms.InputTag('slimmedMETs'),
     PuppiMet = cms.InputTag('slimmedMETsPuppi'),
     #DeepMet = cms.InputTag('deepMetResolutionTuneTable','DeepMETResolutionTune'),
-    # MET filters
+    # MET filters - no filters in 2024 PromptReco
     filter_bits = cms.InputTag("TriggerResults","","PAT"),
     filters     = cms.vstring(METfilters)
 )

@@ -35,7 +35,7 @@ explicit TauPlusMETBuilder(const edm::ParameterSet& cfg):
     met_{consumes<pat::METCollection>( cfg.getParameter<edm::InputTag>("met") )},
     PuppiMet_{consumes<pat::METCollection>( cfg.getParameter<edm::InputTag>("PuppiMet") )},
     //DeepMet_{consumes<pat::METCollection>( cfg.getParameter<edm::InputTag>("DeepMet") )}
-    filterBits_{consumes<edm::TriggerResults>(cfg.getParameter<edm::InputTag>("filter_bits"))},
+    //filterBits_{consumes<edm::TriggerResults>(cfg.getParameter<edm::InputTag>("filter_bits"))}, //FIXME - uncomment to use METfilters-
     Filters_{cfg.getParameter<std::vector<std::string>>("filters")}
     {
         produces<pat::CompositeCandidateCollection>("builtWbosons");
@@ -57,6 +57,7 @@ private:
     std::vector<std::string> Filters_;
     bool debug = false;
     std::pair<double, double> longMETsolutions( TLorentzVector&,  TLorentzVector &) const;
+    bool METfilter_available = false;
 
 };
 
@@ -82,9 +83,10 @@ void TauPlusMETBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
     //const pat::MET &DeepMet = D_Met->front();
     
     edm::Handle<edm::TriggerResults> filterBits;
-    evt.getByToken(filterBits_, filterBits);
-    const edm::TriggerNames &filterNames = evt.triggerNames(*filterBits); 
-
+    //if (METfilter_available){
+    //    evt.getByToken(filterBits_, filterBits);
+    //    const edm::TriggerNames &filterNames = evt.triggerNames(*filterBits); 
+    //}else { const edm::TriggerNames &filterNames = edm::TriggerNames(); }
 
     // [OUTPUT]
     std::unique_ptr<pat::CompositeCandidateCollection> ret_value(new pat::CompositeCandidateCollection());
@@ -145,11 +147,16 @@ void TauPlusMETBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
         pat::CompositeCandidate TauPlusMET;
         TauPlusMET.setCharge(tau.charge());
        
-        // MET filters 
+        // MET filters -> FIXME
         for (const std::string& filter: Filters_){
-
+        
            if(debug) std::cout << " ... checking filter " << filter << std::endl;
            bool filterFound = false;
+           int filter_val = -1;
+        //FIXME - hardcoded to avoid problems with MET filters
+            filterFound = true;
+            if (filterFound) filter_val = 1;
+        /* FIXME - uncomment to use MET filters
            unsigned int index = filterNames.triggerIndex(filter);
            if(index == filterBits->size()){
               std::cout << " WARNING filter " << filter << " NOT found in TriggerResults" << std::endl;
@@ -158,14 +165,15 @@ void TauPlusMETBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
               if(debug) std::cout << " this is filter "<< filterNames.triggerName(index) << " i need " << filter << std::endl; 
               if(debug) std::cout << " extracted value is " << filterBits->accept(index) << std::endl;
            }
-           //int filter_val = (filterFound ? filterBits->accept(index) : false); 
-           int filter_val = -1;
+           //int filter_val = (filterFound ? filterBits->accept(index) : false);
            if(filterFound){
               filter_val = (filterBits->accept(index) ? 1 : 0);
            }
-           //tab->addColumnValue<int>(filter, filter_val, filter);
+           tab->addColumnValue<int>(filter, filter_val, filter);
+        */
            if(debug) std::cout << " save value " << filter_val << std::endl;
-           TauPlusMET.addUserInt(filterNames.triggerName(index), filter_val);
+           //TauPlusMET.addUserInt(filterNames.triggerName(index), filter_val);
+            TauPlusMET.addUserInt(filter, filter_val);
 
         }// loop on MET-filters 
 

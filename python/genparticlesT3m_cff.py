@@ -16,6 +16,7 @@ finalGenParticlesT3m = finalGenParticles.clone(
 
 genParticleT3mTable = genParticleTable.clone(
   src = cms.InputTag("finalGenParticlesT3m"),
+  externalVariables = cms.PSet(),
   variables = cms.PSet(
       genParticleTable.variables,
       vx = Var("vx()", float, doc="x coordinate of the production vertex position, in cm", precision=10),

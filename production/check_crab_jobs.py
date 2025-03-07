@@ -6,10 +6,14 @@ import argparse
 import pandas as pd
 from color import color as c
 
-lumi_normtag = '/cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json'
+# for any updates check teh BRIL instruction for Run3 Twiki
+# --> https://twiki.cern.ch/twiki/bin/view/CMS/LumiRecommendationsRun3#2024
+
+lumi_normtag = '/cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json'
 central_GoldenJson = {
     '2022' : '/eos/user/c/cmsdqm/www/CAF/certification/Collisions22/Cert_Collisions2022_355100_362760_Golden.json',
-    '2023' : '/eos/user/c/cmsdqm/www/CAF/certification/Collisions23/Cert_Collisions2023_366442_370790_Golden.json'
+    '2023' : '/eos/user/c/cmsdqm/www/CAF/certification/Collisions23/Cert_Collisions2023_366442_370790_Golden.json',
+    '2024' : '/eos/user/c/cmsdqm/www/CAF/certification/Collisions24/Cert_Collisions2024_378981_386951_Golden.json'
 }
 
 
@@ -89,7 +93,8 @@ def parse_brilcalc(shell_output):
     out_csv = f'{dir}/brilcalc_results.csv'
     command = ['brilcalc', 'lumi',
                '-b', 'STABLE BEAMS',
-               '--normtag', lumi_normtag, 
+               '--normtag', lumi_normtag,
+               '--datatag', 'online',
                '-i', crab_json_file, 
                '-u', '/fb', 
                '-o', out_csv
@@ -151,13 +156,13 @@ for dir in dir_list:
     # ----- RESUBMIT -----
     failed_fraction = job_info['failed_jobs'] / job_info['total_jobs']
     if (failed_fraction > args.resub_threshold):
-        print(f"[status] fraction of failed jobs is {failed_fraction} which is above the threshold of 0.05 --> {c.RED}resubmitting jobs{c.END}")
+        print(f"[status] fraction of failed jobs is {failed_fraction*100.:.2f}% > {args.resub_threshold*100.:.2f}% --> {c.RED}resubmitting jobs{c.END}")
         resubmit_command = ['crab', 'resubmit', '-d', dir]
         subprocess.run(resubmit_command)
 
     # ----- REPORT -----
     else:
-        print(f"[status] fraction of failed jobs is {failed_fraction} which is below the threshold of 0.05 --> {c.GREEN}not resubmitting jobs{c.END}")
+        print(f"[status] ffraction of failed jobs is {failed_fraction*100:.2f}% < {args.resub_threshold*100.:.2f}% --> {c.GREEN}not resubmitting jobs{c.END}")
         report_command = ['crab', 'report', '-d', dir]
         report = subprocess.run(report_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         report_output = report.stdout

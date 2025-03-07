@@ -35,7 +35,7 @@ options.register('wantFullRECO', False,
     VarParsing.varType.bool,
     "Run this on real data"
 )
-options.register('reportEvery', 100,
+options.register('reportEvery', 1000,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.int,
     "report every N events"
@@ -47,21 +47,25 @@ options.register('skip', 0,
 )
 
 # set number of events
-#options.setDefault('maxEvents', -1) 
-options.setDefault('maxEvents', 100)
-# set physic process
-if not options.physProcess :
-    phys_process = 'tau3mu'
-else :
-    phys_process = options.physProcess
-# set task tag w.r.t. data taking period
-if not options.Era : 
-    era = '2022postEE'
-else :
-    era = options.Era
-tag = '_'.join([phys_process, era]) 
-options.setDefault('tag', tag)
+options.setDefault('tag', '_'.join([options.physProcess, options.Era]) )
+options.setDefault('maxEvents', 1000)
 options.parseArguments()
+
+
+
+#if options._beenSet['tag']: tag = options.tag
+#else: tag = '_'.join([options.physProcess, options.Era]) 
+#options.setDefault('tag', tag)
+
+phys_process = options.physProcess
+era = options.Era
+print('era:', era)
+print('phys_process:', phys_process)
+print('isMC:', options.isMC)
+print('maxEvents:', options.maxEvents)
+print('tag:', options.tag)
+
+
 
 # set global tag:
 global_tags_mc = {
@@ -69,7 +73,7 @@ global_tags_mc = {
     '2022postEE'    : '130X_mcRun3_2022_realistic_postEE_v6',
     '2023preBPix'   : '130X_mcRun3_2023_realistic_v14',
     '2023postBPix'  : '130X_mcRun3_2023_realistic_postBPix_v2',
-    '2024prompt'    : '', #era BCDE
+    '2024prompt'    : '140X_mcRun3_2024_realistic_v26', #era BCDE
 }
 global_tags_data = {
     '2022preEE'     : '124X_dataRun3_PromptAnalysis_v1', #era CD use '124X_dataRun3_Prompt_v10' for era E
@@ -103,7 +107,8 @@ test_mc_inFiles_process_era = {
         '2022preEE'     : ['/store/mc/Run3Summer22MiniAODv4/WtoTauNu_Tauto3Mu_TuneCP5_13p6TeV_pythia8/MINIAODSIM/130X_mcRun3_2022_realistic_v5-v2/2540000/956f1823-037d-4a9c-aa2f-50dcf5936f83.root'],
         '2022postEE'    : ['/store/mc/Run3Summer22EEMiniAODv4/WtoTauNu_Tauto3Mu_TuneCP5_13p6TeV_pythia8/MINIAODSIM/130X_mcRun3_2022_realistic_postEE_v6-v2/2530000/6965991a-4aea-4d25-84b9-82404f0d2b64.root'],
         '2023preBPix'   : [''],
-        '2023postBPix'  : [''], 
+        '2023postBPix'  : [''],
+        '2024prompt'    : ['/store/mc/RunIII2024Summer24MiniAOD/WtoTauNu-Tauto3Mu_TuneCP5_13p6TeV_pythia8/MINIAODSIM/140X_mcRun3_2024_realistic_v26-v2/100000/f7762b80-687c-4aa2-96f5-df6c9704d14c.root'],
     },
     'DsPhiPi' : {
         '2022preEE'     : ['/store/mc/Run3Summer22MiniAODv3/DstoPhiPi_Phito2Mu_MuFilter_TuneCP5_13p6TeV_pythia8-evtgen/MINIAODSIM/124X_mcRun3_2022_realistic_v12-v2/2810000/0da9edba-f8b9-4e0c-8be1-282cdd2b5685.root'],
@@ -119,7 +124,10 @@ test_data_inFiles_era = {
                     ], #era FG
     '2023preBPix'   : [], #era BC
     '2023postBPix'  : [], #era D
-    '2024prompt'    : ['/store/data/Run2024C/ParkingDoubleMuonLowMass0/MINIAOD/PromptReco-v1/000/379/416/00000/0134a8bc-c8d4-400e-9508-2a4b222c5431.root'],
+    '2024prompt'    : [
+        '/store/mc/RunIII2024Summer24MiniAOD/WtoTauNu-Tauto3Mu_TuneCP5_13p6TeV_pythia8/MINIAODSIM/140X_mcRun3_2024_realistic_v26-v2/2520000/f52aa65b-17d8-40f8-9f43-0787250bb2b2.root',
+        '/store/data/Run2024D/ParkingDoubleMuonLowMass0/MINIAOD/PromptReco-v1/000/380/306/00000/06ab7c32-6aae-4ab3-a70f-3c5fe4aa0aa3.root'
+        ],
 }
 ##                ##
 #  DEFINE INPUTS   #  

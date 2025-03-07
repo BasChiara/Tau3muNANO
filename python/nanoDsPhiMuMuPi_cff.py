@@ -44,7 +44,7 @@ def nanoAOD_customizeTrackTau3Mu(process):
     return process   
 
 def nanoAOD_customizeTriggerBitsTau3Mu(process):
-    process.nanoSequence = cms.Sequence( process.nanoSequence + metFiltersTable + trgTables)
+    process.nanoSequence = cms.Sequence( process.nanoSequence + trgTables)
     return process
 
 def nanoAOD_customizeDsPhiMuMuPi(process):

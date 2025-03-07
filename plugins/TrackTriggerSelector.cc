@@ -343,11 +343,11 @@ void TrackTriggerSelector::produce(edm::StreamID, edm::Event& iEvent, const edm:
      pcand.addUserFloat("dZpv", trk.dz(PV.position()));
      pcand.addUserFloat("err_dZpv", trk.dzError());    
      pcand.addUserInt("trackQuality", trk.trackHighPurity()); 
-
-     std::cout << "[DEBUG] -- TrackTriggerSelector -- " << std::endl;
-     std::cout << "  track.pt() = " << pcand.pt() << std::endl;
-     std::cout << "  track.userFloat('dZpv') = " << pcand.userFloat("dZpv") << std::endl;
-
+     if(debug){
+      std::cout << "[DEBUG] -- TrackTriggerSelector -- " << std::endl;
+      std::cout << "  track.pt() = " << pcand.pt() << std::endl;
+      std::cout << "  track.userFloat('dZpv') = " << pcand.userFloat("dZpv") << std::endl;
+   }
      // compatibility with BS, applied at HLT level
      float trkdr = fabs( (- (trk.vx()-beamSpot.x0()) * trk.py() + (trk.vy()-beamSpot.y0()) * trk.px() ) / trk.pt() );
      pcand.addUserFloat("drForHLT", trkdr);
@@ -360,18 +360,19 @@ void TrackTriggerSelector::produce(edm::StreamID, edm::Event& iEvent, const edm:
      }
 
     // in order to avoid revoking the expensive ttrack builder many times and still have everything sorted, we add them to vector of pairs
-    vectrk_ttrk.emplace_back( std::make_pair(pcand,trackTT ) );   
+    vectrk_ttrk.emplace_back(std::make_pair(pcand,trackTT ) );   
   }// loop on presel tracks
   
   // sort to be uniform with leptons
   std::sort( vectrk_ttrk.begin(), vectrk_ttrk.end(), 
         [] ( auto & trk1, auto & trk2) -> 
         bool {return (trk1.first).pt() > (trk2.first).pt();} 
-        );
+   );
 
   // finaly save ttrks and trks to the correct _out vectors
   for ( auto & trk: vectrk_ttrk){
      if (debug) std::cout << "[=] save track with pT " << trk.first.pt() << std::endl;
+     if (debug) std::cout << "[=] save track with N valid hits " << trk.first.userInt("nValidHits") << std::endl;
      tracks_out -> emplace_back( trk.first);
      trans_tracks_out -> emplace_back(trk.second);
   }

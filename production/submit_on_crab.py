@@ -106,6 +106,7 @@ if __name__ == '__main__':
         config.JobType.pyCfgParams = [
             'isMC=%s' % isMC, 
             'reportEvery=1000',
+            'maxEvents=-1',
             'tag=%s' % production_tag,
             'globalTag=%s' % globaltag,
         ]

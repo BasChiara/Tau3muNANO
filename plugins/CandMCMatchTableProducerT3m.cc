@@ -36,8 +36,8 @@ class CandMCMatchTableProducerT3m : public edm::global::EDProducer<> {
                      "511 = from B0, 521 = from B+/-, 0 = unknown or unmatched"; break;
 
          case MElectron: flavDoc_ = "1 = prompt electron (including gamma*->mu mu), 15 = electron from prompt tau, " 
-                         "22 = prompt photon (likely conversion), " // continues below
-                            "511 = from B0, 521 = from B+/-, 0 = unknown or unmatched"; break;
+                        "22 = prompt photon (likely conversion), " // continues below
+                        "511 = from B0, 521 = from B+/-, 0 = unknown or unmatched"; break;
 
          case MPhoton: flavDoc_ = "1 = prompt photon, 13 = prompt electron, 0 = unknown or unmatched"; break;
 
