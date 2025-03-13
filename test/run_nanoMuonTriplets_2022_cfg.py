@@ -80,7 +80,7 @@ global_tags_data = {
     '2022postEE'    : '130X_dataRun3_PromptAnalysis_v1', #era FG
     '2023preBPix'   : '130X_dataRun3_PromptAnalysis_v1', #era BC
     '2023postBPix'  : '130X_dataRun3_PromptAnalysis_v1', #era D
-    '2024prompt'    : '140X_dataRun3_Prompt_v2',
+    '2024prompt'    : '140X_dataRun3_Prompt_v4',
 }
  
 if options._beenSet['globalTag']:
@@ -125,8 +125,7 @@ test_data_inFiles_era = {
     '2023preBPix'   : [], #era BC
     '2023postBPix'  : [], #era D
     '2024prompt'    : [
-        '/store/mc/RunIII2024Summer24MiniAOD/WtoTauNu-Tauto3Mu_TuneCP5_13p6TeV_pythia8/MINIAODSIM/140X_mcRun3_2024_realistic_v26-v2/2520000/f52aa65b-17d8-40f8-9f43-0787250bb2b2.root',
-        '/store/data/Run2024D/ParkingDoubleMuonLowMass0/MINIAOD/PromptReco-v1/000/380/306/00000/06ab7c32-6aae-4ab3-a70f-3c5fe4aa0aa3.root'
+        '/store/data/Run2024I/ParkingDoubleMuonLowMass0/MINIAOD/PromptReco-v2/000/386/694/00000/01e961e3-0d3a-49f0-9dd1-4adbeed3d7f2.root',
         ],
 }
 ##                ##

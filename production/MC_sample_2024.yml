@@ -11,3 +11,12 @@ samples:
   WnuTau3Mu_2024:
     dataset: /WtoTauNu-Tauto3Mu_TuneCP5_13p6TeV_pythia8/RunIII2024Summer24MiniAOD-140X_mcRun3_2024_realistic_v26-v2/MINIAODSIM 
     isMC: True
+  ZTauTau3Mu_2024:
+     dataset: /Zto2Tauto3Mu-M-60to120_TuneCP5_13p6TeV_pythia8-evtgen/RunIII2024Summer24MiniAOD-140X_mcRun3_2024_realistic_v26-v2/MINIAODSIM
+     isMC: True
+  DstoPhiPi_2024:
+    dataset: /DstoPhiPi_Phito2Mu_MuFilter_TuneCP5_13p6TeV_pythia8-evtgen/RunIII2024Summer24MiniAOD-140X_mcRun3_2024_realistic_v26-v2/MINIAODSIM
+    isMC: True
+  W3MuNu_2024:
+    dataset: /WTo3MuNu-smfull_TuneCP5_13p6TeV_madgraph-pythia8/RunIII2024Summer24MiniAOD-140X_mcRun3_2024_realistic_v26-v2/MINIAODSIM 
+    isMC: True
