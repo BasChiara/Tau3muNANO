@@ -1,0 +1,14 @@
+common:
+  mc:
+    splitting: 1
+    globaltag: 130X_mcRun3_2022_realistic_v5 
+
+samples:
+  #
+  #  MC
+  #  
+  TTbarWTau3Mu_2022-v1:
+    dataset: /TTbarLNuLNu_Tau3Mu_TTbarLNuLNu_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22LHEGS_v3/phys_bphys-TTbarLNuLNu_TTbarLNuLNu_Run3Summer22MiniAOD_v3-5443ed9e0a49f9c5d5f0b2fff4804347/USER 
+    dbs: phys03 
+    isMC: True  
+  

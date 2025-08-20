@@ -1,0 +1,30 @@
+common:
+  mc:
+    splitting: 1
+    globaltag: 130X_mcRun3_2022_realistic_v5 
+
+samples:
+  #
+  #  MC
+  #  
+  #WnuTau3Mu_MTau1650_2022-v1:
+  #  dataset: /WtoTauNu_Tauto3Mu_MTau1650_TuneCP5_13p6TeV_pythia8_Run3Summer22GS_v1/phys_bphys-WtoTauNu_Tauto3Mu_MTau1650_Run3Summer22MiniAOD_v1-5443ed9e0a49f9c5d5f0b2fff4804347/USER 
+  #  dbs: phys03 
+  #  isMC: True  
+  WnuTau3Mu_MTau1700_2022-v1:
+    dataset: /WtoTauNu_Tauto3Mu_MTau1700_TuneCP5_13p6TeV_pythia8_Run3Summer22GS_v1/phys_bphys-WtoTauNu_Tauto3Mu_MTau1700_Run3Summer22MiniAOD_v1-5443ed9e0a49f9c5d5f0b2fff4804347/USER 
+    dbs: phys03 
+    isMC: True  
+  WnuTau3Mu_MTau1850_2022-v1:
+    dataset: /WtoTauNu_Tauto3Mu_MTau1850_TuneCP5_13p6TeV_pythia8_Run3Summer22GS_v1/phys_bphys-WtoTauNu_Tauto3Mu_MTau1850_Run3Summer22MiniAOD_v1-5443ed9e0a49f9c5d5f0b2fff4804347/USER 
+    dbs: phys03 
+    isMC: True  
+  WnuTau3Mu_MTau1900_2022-v1:
+    dataset: /WtoTauNu_Tauto3Mu_MTau1900_TuneCP5_13p6TeV_pythia8_Run3Summer22GS_v1/phys_bphys-WtoTauNu_Tauto3Mu_MTau1900_Run3Summer22MiniAOD_v1-5443ed9e0a49f9c5d5f0b2fff4804347/USER 
+    dbs: phys03 
+    isMC: True  
+  WnuTau3Mu_MTau1950_2022-v1:
+    dataset: /WtoTauNu_Tauto3Mu_MTau1950_TuneCP5_13p6TeV_pythia8_Run3Summer22GS_v1/phys_bphys-WtoTauNu_Tauto3Mu_MTau1950_Run3Summer22MiniAOD_v1-5443ed9e0a49f9c5d5f0b2fff4804347/USER
+    dbs: phys03 
+    isMC: True  
+  

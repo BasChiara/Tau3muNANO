@@ -15,7 +15,7 @@ options.register('Era','2022postEE',
     VarParsing.varType.string,
     "Set data taking period : 2022preEE, 2022postEE, 2023preBPix, 2023postBPix"
 )
-options.register('physProcess','Ztau3mu',
+options.register('physProcess','tau3mu',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Set the phys process : tau3mu, DsPhiPi, ppW3MuNu, Ztau3mu"
@@ -46,22 +46,17 @@ options.register('skip', 0,
     "skip first N events"
 )
 
+options.parseArguments()
+era = options.Era
+phys_process = options.physProcess
+if not options.tag :
+    tag = '_'.join([phys_process, era]) 
+    options.setDefault('tag', tag)
+
 # set number of events
 #options.setDefault('maxEvents', -1) 
 options.setDefault('maxEvents', 1000)
-# set physic process
-if not options.physProcess :
-    phys_process = 'tau3mu'
-else :
-    phys_process = options.physProcess
-# set task tag w.r.t. data taking period
-if not options.Era : 
-    era = '2022postEE'
-else :
-    era = options.Era
-tag = '_'.join([phys_process, era]) 
-options.setDefault('tag', tag)
-options.parseArguments()
+
 
 # set global tag:
 global_tags_mc = {
